@@ -78,10 +78,10 @@ sel.members[0].plot(start.cx(), start.cy(), end.cx(), end.cy());
 let scalingfactor=screensize/2;
         function calculateRepulsion(dist) {
             //return Math.E ** (-0.2 *dist/scalingfactor+0.2)- 1;
-            return -(dist/scalingfactor-1);
+            return -(dist/scalingfactor-1)/5;
         }
         function calculateAttraction(dist) {
-            return (dist/scalingfactor)**0.8;
+            return ((dist-50)/scalingfactor)*7;
 //return 20/scalingfactor;
         }
         function distance(x1, y1, x2, y2) {
