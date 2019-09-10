@@ -1,4 +1,4 @@
-<html>
+﻿<html>
 
 <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/2.7.0/svg.min.js"></script>
@@ -10,7 +10,7 @@
         Put a lot of text below and press the button to turn it into a word web!
     </h1>
     <p>Each line is a sentence.</p>
-<textarea>
+<textarea id="body">
         The importance of the front-end decision-making phase in projects is being increasingly recognized—the need to “do the right project” is on a par with “doing the project right.” This area is underrepresented in the literature, but there are a number of key themes that run throughout, identifying key issues or difficulties during this stage.
 
         This article looks at some of these themes and includes: 
@@ -24,12 +24,15 @@
         - taking into account psychological and political biases within estimation of benefits and costs; 
         
         - consideration of the social geography and politics within decision-making groups; 
+</textarea>
+<p>Words to not include:</p>
+<textarea id="exclude">
 </textarea><br>
 <button onclick="gen()">Process</button>
 <div id="drawing">
 </div>
 <script>
-let radius=200;
+let radius=600;
 var draw = SVG('drawing').size(radius*3, radius*3);
 function starsplit(s,r,t="~"){
     let ss=s.replace(r,t);
@@ -69,20 +72,22 @@ function randbritecol() {
 
     return "rgb(" + r + "," + g + "," + b + ")";
 }
+var started=false;
 function gen(){
     draw.clear();
-    let all=document.querySelector("textarea").value;
+    let all=document.querySelector("textarea#body").value;
     all=all.replace(/[^\w\s\n]/g," ");
     let v=starsplit(all,/\n[\n\s]*/mg);
     v=v.map((i)=>i.toLowerCase());
-    //remove three letter words
-    v=v.map((i)=>i.replace(/( |^)(\S{0,5} )*/g," "));
     //remove other words
-    let embargoWordArr=["when","these","some"];
+    let embargoWordArr=document.querySelector("textarea#exclude").value.split(/\s+/g) || [];
+    while(embargoWordArr.indexOf("")!=-1)embargoWordArr.splice(embargoWordArr.indexOf(""),1);
     for (let i=0; i<embargoWordArr.length;i++){
         let re=new RegExp(embargoWordArr[i],"g");
         v=v.map(i=>i.replace(re," "));
     }
+    //remove three letter words
+    v=v.map((i)=>i.replace(/( |^)(\S{0,5} )*/g," "));
     //remove trailing and leading spaces
     v=v.map((i)=>i.replace(/(^ )|( $)/g,""));
     v=v.map((i)=>i.split(/ +/g));
@@ -91,17 +96,149 @@ function gen(){
     
     sentences.forEach(i=>i.forEach(j=>wordsObj[j]={}));
     let wordsArr=Object.keys(wordsObj);
-    radius=wordsArr.length+100;
+    radius=wordsArr.length+400;
     draw.size(radius*3, radius*3);
-    wordsArr.forEach((v,i)=>{
-        wordsObj[v].thing=draw.text(v).cx(radius*(1.5+Math.cos(i/wordsArr.length*Math.PI*2))).cy(radius*(1.5+Math.sin(i/wordsArr.length*Math.PI*2)));
-    })
+
+
+let nodes=wordsObj;
+let nnames=wordsArr;
+let nnodes=nnames.length;
     sentences.forEach(st=>{
-        let col=randbritecol();
         for (let i=0;i<st.length-1;i++){
-            draw.line(wordsObj[st[i]].thing.cx(),wordsObj[st[i]].thing.cy(),wordsObj[st[i+1]].thing.cx(),wordsObj[st[i+1]].thing.cy()).stroke({width:1,color:col});
+if (!nodes[st[i]].to)nodes[st[i]].to={};
+	    nodes[st[i]].to[st[i+1]]=true;
         }
     })
+
+for (let i = 0; i < nnodes; i++) {
+            if (nodes[nnames[i]].to) nodes[nnames[i]].to = Object.keys(nodes[nnames[i]].to);
+        }
+/////////render the nodes
+        var screensize = radius;
+        //set random XY
+        for (let i = 0; i < nnodes; i++) {
+            nodes[nnames[i]].x = Math.random() * screensize;
+            nodes[nnames[i]].y = Math.random() * screensize;
+        }
+        function drawNodes() {
+            //nodes
+            for (let i = 0; i < nnodes; i++) {
+let sel=draw.select("#shp"+nnames[i]);
+let cc;
+if (!sel.members.length){
+                cc=draw.text(nnames[i]).id("shp"+nnames[i]).fill({ color: 'blue' }).mousedown(function(e){nodes[this.node.id.slice(3)].frozen=true;})
+.mouseup(function(e){nodes[this.node.id.slice(3)].frozen=false})
+.mouseleave(function(e){nodes[this.node.id.slice(3)].frozen=false});
+}else{
+cc=sel.members[0];
+}
+cc.cx(nodes[nnames[i]].x).cy(nodes[nnames[i]].y);
+            }
+            //edges
+            for (let i = 0; i < nnodes; i++) {
+                if (!nodes[nnames[i]].to) continue;
+                let start = draw.select("#shp"+nnames[i]).members[0];
+                for (let j = 0; j < nodes[nnames[i]].to.length; j++) {
+                    let end = draw.select("#shp"+nodes[nnames[i]].to[j]).members[0];
+let tid="ln"+nnames[i]+nodes[nnames[i]].to[j];
+let sel=draw.select("#"+tid);
+if (!sel.members.length){
+draw.line(start.cx(), start.cy(), end.cx(), end.cy()).stroke({ width: 1 }).id(tid);
+}
+else{
+sel.members[0].plot(start.cx(), start.cy(), end.cx(), end.cy());
+ }                   
+                }
+            }
+        }
+
+        //update
+let scalingfactor=screensize/2;
+        function calculateRepulsion(dist) {
+            //return Math.E ** (-0.2 *dist/scalingfactor+0.2)- 1;
+            return -(dist/scalingfactor-1);
+        }
+        function calculateAttraction(dist) {
+            return (dist/scalingfactor)**0.8;
+//return 20/scalingfactor;
+        }
+        function distance(x1, y1, x2, y2) {
+            return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
+        }
+        function update() {
+            //calculate acceleration based on repulsion
+            for (let i = 0; i < nnodes; i++) {
+                nodes[nnames[i]].d2x = nodes[nnames[i]].d2y = 0;
+            }
+            for (let i = 0; i < nnodes; i++) {
+                for (let j = i + 1; j < nnodes; j++) {
+                    let dist = distance(nodes[nnames[i]].x, nodes[nnames[i]].y, nodes[nnames[j]].x, nodes[nnames[j]].y);
+                    let repulsion = calculateRepulsion(dist);
+                    let dirx = (nodes[nnames[i]].x - nodes[nnames[j]].x) / dist;
+                    let diry = (nodes[nnames[i]].y - nodes[nnames[j]].y) / dist;
+                    nodes[nnames[i]].d2x += repulsion * dirx;
+                    nodes[nnames[i]].d2y += repulsion * diry;
+                    nodes[nnames[j]].d2x -= repulsion * dirx;
+                    nodes[nnames[j]].d2y -= repulsion * diry;
+                }
+            }
+            for (let i = 0; i < nnodes; i++) {
+                if (!nodes[nnames[i]].to) continue;
+                for (let j = 0; j < nodes[nnames[i]].to.length; j++) {
+                    let other=nodes[nodes[nnames[i]].to[j]];
+if (other.to&& other.to.includes(nnames[i]) && nnames[i]>=nodes[nnames[i]].to[j])continue;
+                    let dist = distance(nodes[nnames[i]].x, nodes[nnames[i]].y, other.x, other.y);
+                    let attraction = calculateAttraction(dist);
+                    let dirx = (nodes[nnames[i]].x - other.x) / dist;
+                    let diry = (nodes[nnames[i]].y - other.y) / dist;
+                    nodes[nnames[i]].d2x -= attraction * dirx;
+                    nodes[nnames[i]].d2y -= attraction * diry;
+                    other.d2x += attraction * dirx;
+                    other.d2y += attraction * diry;
+                }
+            }
+let dampingcoeff=0.001;
+//calculate velocity and etc
+for (let i = 0; i < nnodes; i++) {
+nodes[nnames[i]].dx = nodes[nnames[i]].dx||0;
+                nodes[nnames[i]].dy = nodes[nnames[i]].dy||0;
+                           nodes[nnames[i]].d2x-=(nodes[nnames[i]].dx**3) *dampingcoeff;
+                           nodes[nnames[i]].d2y-=(nodes[nnames[i]].dy**3) *dampingcoeff;
+}
+//temperature
+let temp=0.1;
+for (let i = 0; i < nnodes; i++) {
+nodes[nnames[i]].dx += (Math.random()-0.5)*temp;
+nodes[nnames[i]].dy += (Math.random()-0.5)*temp;
+}
+//centrifugal acceleration so we dont drift off screen
+let cfac=0.02;
+for (let i = 0; i < nnodes; i++) {
+let d=distance(screensize/2,screensize/2,nodes[nnames[i]].x,nodes[nnames[i]].y);
+nodes[nnames[i]].d2x -= (nodes[nnames[i]].x-screensize/2)/d*temp;
+nodes[nnames[i]].d2y -= (nodes[nnames[i]].y-screensize/2)/d*temp;
+}
+let dt=0.2;
+            //calculate velocity and etc
+            for (let i = 0; i < nnodes; i++) {
+                if (!nodes[nnames[i]].frozen){
+                nodes[nnames[i]].dx+=nodes[nnames[i]].d2x*dt;
+                nodes[nnames[i]].x+=nodes[nnames[i]].dx*dt;
+                nodes[nnames[i]].dy+=nodes[nnames[i]].d2y*dt;
+                nodes[nnames[i]].y+=nodes[nnames[i]].dy*dt;
+}
+            }
+            //attract linked nodes
+            drawNodes();
+            started=requestAnimationFrame(update);
+        }
+	if (started){
+cancelAnimationFrame(started);
+	}
+started=requestAnimationFrame(update);
+
+
+
 }
 gen();
 </script>
