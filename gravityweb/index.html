@@ -20,17 +20,20 @@
             nodes[guid()] = {};
         }
         let nnames = Object.keys(nodes);
-
+let blobs=7;
         for (let i = 0; i < 200; i++) {
-            let frm = nnames[rand(nnodes)];
-            let to = nnames[rand(nnodes)];
+let half=Math.floor(Math.random()*blobs);
+            let frm = nnames[Math.floor(rand(nnodes/blobs)+half*nnodes/blobs)];
+            let to = nnames[Math.floor(rand(nnodes/blobs)+half*nnodes/blobs)];
             if (frm == to) continue;
             if (!nodes[frm].to) nodes[frm].to = {};
             nodes[frm].to[to] = true;
         }
+
         for (let i = 0; i < nnodes; i++) {
             if (nodes[nnames[i]].to) nodes[nnames[i]].to = Object.keys(nodes[nnames[i]].to);
         }
+
         /////////render the nodes
         var screensize = 1000;
         var draw = SVG('output').size(screensize, screensize);
@@ -74,11 +77,11 @@ sel.members[0].plot(start.cx(), start.cy(), end.cx(), end.cy());
         //update
 let scalingfactor=screensize/2;
         function calculateRepulsion(dist) {
-            return Math.E ** (-0.2 *dist/scalingfactor+0.2)- 1;
-            //return -(dist/scalingfactor-0.3);
+            //return Math.E ** (-0.2 *dist/scalingfactor+0.2)- 1;
+            return -(dist/scalingfactor-1);
         }
         function calculateAttraction(dist) {
-            return (dist/scalingfactor)**0.7;
+            return (dist/scalingfactor)**0.8;
 //return 20/scalingfactor;
         }
         function distance(x1, y1, x2, y2) {
@@ -137,7 +140,7 @@ let d=distance(screensize/2,screensize/2,nodes[nnames[i]].x,nodes[nnames[i]].y);
 nodes[nnames[i]].d2x -= (nodes[nnames[i]].x-screensize/2)/d*temp;
 nodes[nnames[i]].d2y -= (nodes[nnames[i]].y-screensize/2)/d*temp;
 }
-let dt=0.5;
+let dt=0.2;
             //calculate velocity and etc
             for (let i = 0; i < nnodes; i++) {
                 if (!nodes[nnames[i]].frozen){
