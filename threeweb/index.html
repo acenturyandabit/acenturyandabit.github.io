@@ -1,11 +1,35 @@
 <head>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/2.7.0/svg.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/108/three.min.js"></script>
+    <script src="OrbitControls.js"></script>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%
+        }
+    </style>
 </head>
 
+</html>
+
 <body>
-    <div id="output">
-    </div>
     <script>
+        var screensize = 1000;
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, screensize*3);
+
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        var controls = new THREE.OrbitControls(camera, renderer.domElement);
+        camera.position.x = screensize/2;
+        camera.position.y = screensize/2;
+        camera.position.z = screensize;
+        camera.lookAt(screensize/2,screensize/2,screensize/2);
+
         //procedurally generate nodes
         function rand(i) { return Math.floor(Math.random() * i) };
         function guid(count = 6) {
@@ -32,79 +56,157 @@
             if (nodes[nnames[i]].to) nodes[nnames[i]].to = Object.keys(nodes[nnames[i]].to);
         }
         /////////render the nodes
-        var screensize = 1000;
-        var draw = SVG('output').size(screensize, screensize);
+        
         //set random XY
         for (let i = 0; i < nnodes; i++) {
             nodes[nnames[i]].x = Math.random() * screensize;
             nodes[nnames[i]].y = Math.random() * screensize;
+            nodes[nnames[i]].z = Math.random() * screensize;
         }
+        let sm = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+        var lm = new THREE.LineBasicMaterial( { color: 0x0000ff } );
+        var tm = 0.1;
+        var lindex={};
         function drawNodes() {
-            draw.clear();
             //nodes
             for (let i = 0; i < nnodes; i++) {
-                draw.circle(10).cx(nodes[nnames[i]].x).cy(nodes[nnames[i]].y).id("shp"+nnames[i]).fill({ color: 'blue' });
+                if (!nodes[nnames[i]].point) {
+                    let gm = new THREE.SphereBufferGeometry(2, 32, 32);
+                    let msh = new THREE.Mesh(gm, sm);
+                    nodes[nnames[i]].point = new THREE.Object3D();
+                    nodes[nnames[i]].point.add(msh);
+                    scene.add(nodes[nnames[i]].point);
+                    nodes[nnames[i]].point.translateY(nodes[nnames[i]].y);
+                    nodes[nnames[i]].point.translateX(nodes[nnames[i]].x);
+                    nodes[nnames[i]].point.translateZ(nodes[nnames[i]].z);
+                    //create the point
+                }
+                let pos = nodes[nnames[i]].point;
+                pos.translateY(nodes[nnames[i]].y-nodes[nnames[i]].oy);
+                pos.translateX(nodes[nnames[i]].x-nodes[nnames[i]].ox);
+                pos.translateZ(nodes[nnames[i]].z-nodes[nnames[i]].oz);
+                //update the point
+
             }
+            
+
             //edges
             for (let i = 0; i < nnodes; i++) {
                 if (!nodes[nnames[i]].to) continue;
-                let start = draw.select("#shp"+nnames[i]).members[0];
+                let start=nodes[nnames[i]];
                 for (let j = 0; j < nodes[nnames[i]].to.length; j++) {
-                    let end = draw.select("#shp"+nodes[nnames[i]].to[j]).members[0];
-                    draw.line(start.cx(), start.cy(), end.cx(), end.cy()).stroke({ width: 1 });
+                    let tid = "ln" + nnames[i] + nodes[nnames[i]].to[j];
+                    let end=nodes[nodes[nnames[i]].to[j]];
+                    if (!lindex[tid]) {
+                        let gm= new THREE.Geometry();
+                        gm.vertices.push(new THREE.Vector3( start.x, start.y, start.z) );
+                        gm.vertices.push(new THREE.Vector3( end.x, end.y, end.z) );
+                        //create the line
+                        lindex[tid] = new THREE.Line( gm, lm );
+                        scene.add(lindex[tid]);
+                    }
+                    lindex[tid].geometry.vertices[0].x=start.x;
+                    lindex[tid].geometry.vertices[0].y=start.y;
+                    lindex[tid].geometry.vertices[0].z=start.z;
+                    lindex[tid].geometry.vertices[1].x=end.x;
+                    lindex[tid].geometry.vertices[1].y=end.y;
+                    lindex[tid].geometry.vertices[1].z=end.z;
+                    lindex[tid].geometry.verticesNeedUpdate=true;
                 }
             }
+            renderer.render(scene, camera);
         }
 
         //update
+        let scalingfactor = screensize / 2;
         function calculateRepulsion(dist) {
-            return Math.E ** (-0.2 * (dist)/screensize) - 1;
+            //return Math.E ** (-0.2 *dist/scalingfactor+0.2)- 1;
+            return -(dist / scalingfactor - 1) / 5;
         }
         function calculateAttraction(dist) {
-            return Math.log(dist+0.1);
+            return ((dist - 50) / scalingfactor) * 7;
+            //return 20/scalingfactor;
         }
-        function distance(x1, y1, x2, y2) {
-            return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
+        function distance(x1, y1, z1, x2, y2, z2) {
+            return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2 + (z1 - z2) ** 2);
         }
         function update() {
             //calculate acceleration based on repulsion
             for (let i = 0; i < nnodes; i++) {
-                nodes[nnames[i]].d2x = nodes[nnames[i]].d2y = 0;
+                nodes[nnames[i]].d2x = nodes[nnames[i]].d2y = nodes[nnames[i]].d2z = 0;
             }
             for (let i = 0; i < nnodes; i++) {
                 for (let j = i + 1; j < nnodes; j++) {
-                    let dist = distance(nodes[nnames[i]].x, nodes[nnames[i]].y, nodes[nnames[j]].x, nodes[nnames[j]].y);
+                    let dist = distance(nodes[nnames[i]].x, nodes[nnames[i]].y, nodes[nnames[i]].z, nodes[nnames[j]].x, nodes[nnames[j]].y, nodes[nnames[j]].z);
                     let repulsion = calculateRepulsion(dist);
                     let dirx = (nodes[nnames[i]].x - nodes[nnames[j]].x) / dist;
                     let diry = (nodes[nnames[i]].y - nodes[nnames[j]].y) / dist;
+                    let dirz = (nodes[nnames[i]].z - nodes[nnames[j]].z) / dist;
                     nodes[nnames[i]].d2x += repulsion * dirx;
                     nodes[nnames[i]].d2y += repulsion * diry;
+                    nodes[nnames[i]].d2z += repulsion * dirz;
                     nodes[nnames[j]].d2x -= repulsion * dirx;
                     nodes[nnames[j]].d2y -= repulsion * diry;
+                    nodes[nnames[j]].d2z -= repulsion * dirz;
                 }
             }
             for (let i = 0; i < nnodes; i++) {
                 if (!nodes[nnames[i]].to) continue;
-                for (let j = i + 1; j < nodes[nnames[i]].to.length; j++) {
-                    let other=nodes[nodes[nnames[i]].to[j]];
-                    let dist = distance(nodes[nnames[i]].x, nodes[nnames[i]].y, other.x, other.y);
+                for (let j = 0; j < nodes[nnames[i]].to.length; j++) {
+                    let other = nodes[nodes[nnames[i]].to[j]];
+                    if (other.to && other.to.includes(nnames[i]) && nnames[i] > nodes[nnames[i]].to[j]) continue;
+                    let dist = distance(nodes[nnames[i]].x, nodes[nnames[i]].y, nodes[nnames[i]].z, other.x, other.y, other.z);
                     let attraction = calculateAttraction(dist);
                     let dirx = (nodes[nnames[i]].x - other.x) / dist;
                     let diry = (nodes[nnames[i]].y - other.y) / dist;
+                    let dirz = (nodes[nnames[i]].z - other.z) / dist;
                     nodes[nnames[i]].d2x -= attraction * dirx;
                     nodes[nnames[i]].d2y -= attraction * diry;
+                    nodes[nnames[i]].d2z -= attraction * dirz;
                     other.d2x += attraction * dirx;
                     other.d2y += attraction * diry;
+                    other.d2z += attraction * dirz;
                 }
             }
+            let dampingcoeff = 0.001;
+            //damping
+            for (let i = 0; i < nnodes; i++) {
+                nodes[nnames[i]].dx = nodes[nnames[i]].dx || 0;
+                nodes[nnames[i]].dy = nodes[nnames[i]].dy || 0;
+                nodes[nnames[i]].dz = nodes[nnames[i]].dz || 0;
+                nodes[nnames[i]].d2x -= (nodes[nnames[i]].dx ** 3) * dampingcoeff;
+                nodes[nnames[i]].d2y -= (nodes[nnames[i]].dy ** 3) * dampingcoeff;
+                nodes[nnames[i]].d2z -= (nodes[nnames[i]].dz ** 3) * dampingcoeff;
+            }
+            //temperature
+            let temp = 0.1;
+            for (let i = 0; i < nnodes; i++) {
+                nodes[nnames[i]].dx += (Math.random() - 0.5) * temp;
+                nodes[nnames[i]].dy += (Math.random() - 0.5) * temp;
+                nodes[nnames[i]].dz += (Math.random() - 0.5) * temp;
+            }
+            //centrifugal acceleration so we dont drift off screen
+            let cfac = 0.02;
+            for (let i = 0; i < nnodes; i++) {
+                let d = distance(screensize / 2, screensize / 2,screensize / 2, nodes[nnames[i]].x, nodes[nnames[i]].y,nodes[nnames[i]].z);
+                nodes[nnames[i]].d2x -= (nodes[nnames[i]].x - screensize / 2) / d * temp;
+                nodes[nnames[i]].d2y -= (nodes[nnames[i]].y - screensize / 2) / d * temp;
+                nodes[nnames[i]].d2z -= (nodes[nnames[i]].z - screensize / 2) / d * temp;
+            }
+            let dt = 0.2;
             //calculate velocity and etc
             for (let i = 0; i < nnodes; i++) {
-                nodes[nnames[i]].dx = nodes[nnames[i]].dx||0;
-                nodes[nnames[i]].dy = nodes[nnames[i]].dy||0;
-                nodes[nnames[i]].dx+=nodes[nnames[i]].d2x*0.1;
-                nodes[nnames[i]].x+=nodes[nnames[i]].dx*0.1;
-                nodes[nnames[i]].dy+=nodes[nnames[i]].d2y*0.1;
-                nodes[nnames[i]].y+=nodes[nnames[i]].dy*0.1;
+                if (!nodes[nnames[i]].frozen) {
+                    nodes[nnames[i]].dx += nodes[nnames[i]].d2x * dt;
+                    nodes[nnames[i]].ox =nodes[nnames[i]].x;
+                    nodes[nnames[i]].x += nodes[nnames[i]].dx * dt;
+                    nodes[nnames[i]].dy += nodes[nnames[i]].d2y * dt;
+                    nodes[nnames[i]].oy =nodes[nnames[i]].y;
+                    nodes[nnames[i]].y += nodes[nnames[i]].dy * dt;
+                    nodes[nnames[i]].dz += nodes[nnames[i]].d2z * dt;
+                    nodes[nnames[i]].oz =nodes[nnames[i]].z;
+                    nodes[nnames[i]].z += nodes[nnames[i]].dz * dt;
+                }
             }
             //attract linked nodes
             drawNodes();
