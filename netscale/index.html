@@ -1,0 +1,265 @@
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/2.7.0/svg.min.js"></script>
+</head>
+
+<body>
+    <div id="output">
+    </div>
+    <script>
+        ///////////////procedurally generate nodes
+        function rand(i) { return Math.floor(Math.random() * i) };
+        function guid(count = 6) {
+            let pool = "1234567890qwertyuiopasdfghjklzxcvbnm";
+            tguid = "";
+            for (i = 0; i < count; i++) tguid += pool[Math.floor(Math.random() * pool.length)];
+            return tguid;
+        }
+        var nodes = {};
+        var nnodes = 100;
+        for (let i = 0; i < nnodes; i++) {
+            nodes[guid()] = {};
+        }
+        let nnames = Object.keys(nodes);
+        let cmnode = nnames[0];
+        let blobs = 1;
+        for (let i = 0; i < 200; i++) {
+            let half = Math.floor(Math.random() * blobs);
+            let frm = nnames[Math.floor(rand(nnodes / blobs) + half * nnodes / blobs)];
+            let to = nnames[Math.floor(rand(nnodes / blobs) + half * nnodes / blobs)];
+            if (frm == to) continue;
+            if (!nodes[frm].to) nodes[frm].to = {};
+            nodes[frm].to[to] = true;
+        }
+
+        for (let i = 0; i < nnodes; i++) {
+            if (nodes[nnames[i]].to) nodes[nnames[i]].to = Object.keys(nodes[nnames[i]].to);
+        }
+
+        /////////render the nodes
+        var screensize = 1000;
+        var draw = SVG('output').size(screensize, screensize);
+        //set random XY
+        for (let i = 0; i < nnodes; i++) {
+            nodes[nnames[i]].x = Math.random() * screensize;
+            nodes[nnames[i]].y = Math.random() * screensize;
+        }
+        function drawNodes() {
+            //nodes
+            for (let i = 0; i < nnodes; i++) {
+                let sel = draw.select("#shp" + nnames[i]);
+                let cc;
+                if (!sel.members.length) {
+                    cc = draw.circle(20).id("shp" + nnames[i]).fill({ color: 'black' }).mousedown(function (e) { nodes[this.node.id.slice(3)].frozen = true; })
+                        .mouseup(function (e) { nodes[this.node.id.slice(3)].frozen = false })
+                        .mouseleave(function (e) { nodes[this.node.id.slice(3)].frozen = false });
+                } else {
+                    cc = sel.members[0];
+                }
+                if (nnames[i] == cmnode) cc.fill({ color: 'red' });
+                else cc.fill({ color: 'black' });
+                cc.cx(nodes[nnames[i]].x).cy(nodes[nnames[i]].y);
+            }
+            //edges
+            for (let i = 0; i < nnodes; i++) {
+                if (!nodes[nnames[i]].to) continue;
+                let start = draw.select("#shp" + nnames[i]).members[0];
+                for (let j = 0; j < nodes[nnames[i]].to.length; j++) {
+                    let end = draw.select("#shp" + nodes[nnames[i]].to[j]).members[0];
+                    let tid = "ln" + nnames[i] + nodes[nnames[i]].to[j];
+                    let sel = draw.select("#" + tid);
+                    if (!sel.members.length) {
+                        draw.line(start.cx(), start.cy(), end.cx(), end.cy()).stroke({ width: 1 }).id(tid);
+                    }
+                    else {
+                        sel.members[0].plot(start.cx(), start.cy(), end.cx(), end.cy());
+                    }
+                }
+            }
+        }
+
+        //update
+        let scalingfactor = screensize / 2;
+        function calculateRepulsion(dist) {
+            //return Math.E ** (-0.2 *dist/scalingfactor+0.2)- 1;
+            return -(dist / scalingfactor - 1) / 5;
+        }
+        function calculateAttraction(dist) {
+            return ((dist - 50) / scalingfactor) * 7;
+            //return 20/scalingfactor;
+        }
+        function distance(x1, y1, x2, y2) {
+            return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
+        }
+        function update() {
+            //calculate acceleration based on repulsion
+            for (let i = 0; i < nnodes; i++) {
+                nodes[nnames[i]].d2x = nodes[nnames[i]].d2y = 0;
+            }
+            for (let i = 0; i < nnodes; i++) {
+                for (let j = i + 1; j < nnodes; j++) {
+                    let dist = distance(nodes[nnames[i]].x, nodes[nnames[i]].y, nodes[nnames[j]].x, nodes[nnames[j]].y);
+                    let repulsion = calculateRepulsion(dist);
+                    let dirx = (nodes[nnames[i]].x - nodes[nnames[j]].x) / dist;
+                    let diry = (nodes[nnames[i]].y - nodes[nnames[j]].y) / dist;
+                    nodes[nnames[i]].d2x += repulsion * dirx;
+                    nodes[nnames[i]].d2y += repulsion * diry;
+                    nodes[nnames[j]].d2x -= repulsion * dirx;
+                    nodes[nnames[j]].d2y -= repulsion * diry;
+                }
+            }
+            for (let i = 0; i < nnodes; i++) {
+                if (!nodes[nnames[i]].to) continue;
+                for (let j = 0; j < nodes[nnames[i]].to.length; j++) {
+                    let other = nodes[nodes[nnames[i]].to[j]];
+                    if (other.to && other.to.includes(nnames[i]) && nnames[i] > nodes[nnames[i]].to[j]) continue;
+                    let dist = distance(nodes[nnames[i]].x, nodes[nnames[i]].y, other.x, other.y);
+                    let attraction = calculateAttraction(dist);
+                    let dirx = (nodes[nnames[i]].x - other.x) / dist;
+                    let diry = (nodes[nnames[i]].y - other.y) / dist;
+                    nodes[nnames[i]].d2x -= attraction * dirx;
+                    nodes[nnames[i]].d2y -= attraction * diry;
+                    other.d2x += attraction * dirx;
+                    other.d2y += attraction * diry;
+                }
+            }
+            let dampingcoeff = 0.001;
+            //damping coefficient
+            for (let i = 0; i < nnodes; i++) {
+                nodes[nnames[i]].dx = nodes[nnames[i]].dx || 0;
+                nodes[nnames[i]].dy = nodes[nnames[i]].dy || 0;
+                nodes[nnames[i]].d2x -= (nodes[nnames[i]].dx ** 3) * dampingcoeff;
+                nodes[nnames[i]].d2y -= (nodes[nnames[i]].dy ** 3) * dampingcoeff;
+            }
+            //temperature
+            let temp = 0.1;
+            for (let i = 0; i < nnodes; i++) {
+                nodes[nnames[i]].dx += (Math.random() - 0.5) * temp;
+                nodes[nnames[i]].dy += (Math.random() - 0.5) * temp;
+            }
+            //centrifugal acceleration so we dont drift off screen
+            let cfac = 0.02;
+            for (let i = 0; i < nnodes; i++) {
+                let d = distance(screensize / 2, screensize / 2, nodes[nnames[i]].x, nodes[nnames[i]].y);
+                nodes[nnames[i]].d2x -= (nodes[nnames[i]].x - screensize / 2) / d * temp;
+                nodes[nnames[i]].d2y -= (nodes[nnames[i]].y - screensize / 2) / d * temp;
+            }
+            let dt = 0.2;
+            //calculate velocity and etc
+            for (let i = 0; i < nnodes; i++) {
+                if (!nodes[nnames[i]].frozen) {
+                    nodes[nnames[i]].dx += nodes[nnames[i]].d2x * dt;
+                    nodes[nnames[i]].x += nodes[nnames[i]].dx * dt;
+                    nodes[nnames[i]].dy += nodes[nnames[i]].d2y * dt;
+                    nodes[nnames[i]].y += nodes[nnames[i]].dy * dt;
+                }
+            }
+            //attract linked nodes
+            drawNodes();
+            requestAnimationFrame(update);
+        }
+        requestAnimationFrame(update);
+
+
+
+        ///////////MUSICAL THINGS
+
+        function scalify(n, scale) {
+            let sclen = scale.length - 1;
+            let p = ((n - n % sclen) / sclen) * scale[sclen];
+            p = p + scale[n % sclen];
+            return p;
+        }
+
+        function chord(n, scale) {
+            //returns the notes of a chord, given a scale
+            return [scalify(n, scale), scalify(n + 1, scale), scalify(n + 2, scale), scalify(n + 3, scale)];
+        }
+        function arpeggio(notes, divisions, length) {
+            let arr = [];
+            for (var i = 0; i < divisions; i++)arr.push(0);
+            return notes.map((i, n) => {
+                let io = arr.map((v, n2) => ((n == n2) | 0));
+                let pre = 0;
+                let out = [];
+                for (let i = 0; i < io.length; i++) {
+                    if (pre != io[i]) {
+                        out.push(i * length / divisions);
+                        pre = io[i];
+                    }
+                }
+                if (pre == 1) { out.push(length) };
+                let out2 = [];
+                for (let i = 0; i < out.length; i++) {
+                    if (!i % 2) {
+                        out2.push([out[i], out[i + 1]]);
+                    }
+                }
+                return { n: i, r: out2 };
+            })
+            //returns timings for an RNG arpeggio
+        }
+        let context;
+        let gain;
+        function actuate(sequence, time, playto) {
+            sequence.forEach((i) => {
+                //n is the frequency
+                //oscillator for each branch
+                i.r.forEach((v) => {
+                    let osc = context.createOscillator();
+                    osc.frequency.setValueAtTime(i.n, time);
+                    osc.type = "sawtooth";
+                    osc.connect(playto);
+                    //intelligently set end time
+                    osc.start(time + v[0]);
+                    osc.stop(time + Math.floor(v[1] * i.n) / i.n);
+                })
+            });
+        }
+        var pntic = [1, 3, 5, 8, 10, 12];
+
+        function impulseResponse(duration, decay, reverse) {
+            var sampleRate = context.sampleRate;
+            var length = sampleRate * duration;
+            var impulse = context.createBuffer(2, length, sampleRate);
+            var impulseL = impulse.getChannelData(0);
+            var impulseR = impulse.getChannelData(1);
+
+            if (!decay)
+                decay = 2.0;
+            for (var i = 0; i < length; i++) {
+                var n = reverse ? length - i : i;
+                impulseL[i] = (Math.random() * 2 - 1) * Math.pow(1 - n / length, decay);
+                impulseR[i] = (Math.random() * 2 - 1) * Math.pow(1 - n / length, decay);
+            }
+            return impulse;
+        }
+
+
+        document.addEventListener("mousedown", () => {
+            if (!context) {
+                context = new AudioContext();
+                let cnvlv = context.createConvolver();
+                gain = context.createGain();
+                gain.gain.value = 0.5;
+                cnvlv.buffer=impulseResponse(1,1,0);
+                cnvlv.connect(gain);
+                gain.connect(context.destination);
+                console.log("Starting...")
+                //is what i care about
+                setInterval(() => {
+                    if (nodes[cmnode].to) {
+                        cmnode = nodes[cmnode].to[Math.floor(Math.random() * nodes[cmnode].to.length)];
+                    } else {
+                        cmnode = nnames[Math.floor(Math.random() * nnames.length)];
+                    }
+                    //find frequency
+                    let cchord = chord(Math.floor(nodes[cmnode].y / screensize * 20 + 10), pntic);
+                    cchord = cchord.map(i => 55 * 2 ** (1 / 12 * i));
+                    let apeg = arpeggio(cchord, 4, 1.6);
+                    actuate(apeg, context.currentTime, cnvlv);
+
+                }, 1600);
+            }
+        })
+    </script>
+</body>
