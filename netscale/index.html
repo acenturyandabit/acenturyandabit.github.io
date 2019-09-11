@@ -2,8 +2,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/2.7.0/svg.min.js"></script>
 </head>
 
-<body>
-    <div id="output">
+<body style="margin:0">
+    <div id="output" style="position: absolute; width:100vh; height:100vh">
+        <span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%); background: black;color:white;font-size:3em"> Click to play sound...</span>
     </div>
     <script>
         ///////////////procedurally generate nodes
@@ -36,7 +37,7 @@
         }
 
         /////////render the nodes
-        var screensize = 1000;
+        var screensize = document.querySelector("div").clientHeight;
         var draw = SVG('output').size(screensize, screensize);
         //set random XY
         for (let i = 0; i < nnodes; i++) {
@@ -246,6 +247,7 @@
                 gain.connect(context.destination);
                 console.log("Starting...")
                 //is what i care about
+                document.querySelector("span").remove();
                 setInterval(() => {
                     if (nodes[cmnode].to) {
                         cmnode = nodes[cmnode].to[Math.floor(Math.random() * nodes[cmnode].to.length)];
