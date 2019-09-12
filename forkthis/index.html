@@ -118,6 +118,7 @@
         let n = localStorage.getItem("fork_nodes");
         let nnames;
         try {
+            if (!n)throw "aaaah";
             nodes = JSON.parse(n);
         } catch (e) {
             let startingStory = `
