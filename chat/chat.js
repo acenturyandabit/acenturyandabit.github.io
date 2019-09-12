@@ -1,13 +1,3 @@
-process.stdin.resume();
-/*for (let i in process.stdin){
-  try{
-    console.log(i+"=="+process.stdin[i]);
-  }catch (e){
-    console.log(i);
-  }
-  
-}*/
-//process.stdin.on('*',(d)=>console.log(d));
 
 function tryIntegrate(assertion){
   let stance=database.stanceOn(assertion)
@@ -39,6 +29,10 @@ function respondTo(question){
 }
 
 function dealwith(msg){
+  
+
+
+
   tree=nlp.parse(msg);
   tonality=nlp.tonality(msg);
   if (tree.type=="interjection"){
@@ -49,9 +43,3 @@ function dealwith(msg){
     respondTo(assertion);
   }
 }
-
-
-
-process.stdin.on('data', (d) => {
-  dealwith(d.toString());
-});
