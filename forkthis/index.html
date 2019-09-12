@@ -3,9 +3,19 @@
     <!-- The core Firebase JS SDK is always required and must be listed first -->
     <script src="https://www.gstatic.com/firebasejs/6.6.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/6.6.0/firebase-firestore.js"></script>
+    <style>
+        .b {
+            width:100%;
+            display:flex;
+            flex-direction: row;
+        }
+        .b>div{
+            flex: 1 0 10px;
 
-    <!-- TODO: Add SDKs for Firebase products that you want to use
-     https://firebase.google.com/docs/web/setup#config-web-app -->
+        }
+
+        .s {}
+    </style>
 </head>
 
 <body>
@@ -22,39 +32,59 @@
             appId: "1:894862693076:web:30065e02b66cb1f3e0a141"
         };
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        var db = firebase.firestore();
-
+        try {
+            firebase.initializeApp(firebaseConfig);
+            var db = firebase.firestore();
+        } catch (e) {
+            console.log("disconnected");
+        }
         var node = {
             id: "asdfasdfs",
             data: "stuff",
             parent: "werwer"
         }
-        var nodes = { node };
 
-        function findFirstChild(id){
-            for (let i in nodes){
-                if (nodes[i].parent==id){
+        var nodes = {};
+
+        function guid(count = 6) {
+            let pool = "1234567890qwertyuiopasdfghjklzxcvbnm";
+            tguid = "";
+            for (i = 0; i < count; i++) tguid += pool[Math.floor(Math.random() * pool.length)];
+            return tguid;
+        }
+        for (let i = 0; i < 200; i++) {
+            let id = guid();
+            nodes[id] = { id: id };
+        }
+        let nnames = Object.keys(nodes);
+        for (let i in nodes) {
+            nodes[i].parent = nnames[Math.floor(Math.random() * nnames.length)];
+            nodes[i].data = "potato tomato";
+        }
+        function findFirstChild(id) {
+            for (let i in nodes) {
+                if (nodes[i].parent == id) {
                     return i;
                 }
             }
             return undefined;
         }
         function render(node, single = false) { // same as display function for now
-            if (!node)return;
+            if (!node) return;
             //check if its parent exists
             if (!single) {
-                if (!document.querySelector(`div#${node.id}`)) {
-                    // if not, then render the parent quickly
+                if (!document.querySelector(`div#b${node.id}`)) {//b is the containing frame with the buttons. s is the little frame inside b.
+                    // if not, then render the parent quickly: its frame and itself.
                     render(nodes[node.parent], true);
                 }
             }
             //do i already exist? If not, then create me
-            if (!document.querySelector(`div#${node.frame}`)) {
+            if (!document.querySelector(`div#s${node.id}`)) {
                 //does my frame exist? if not, then create my frame.
-                if (!document.querySelector(`div#${node.frame}`)) {
-                    let d = document.createElement(div);
-                    d.id = node.frame;
+                if (!document.querySelector(`div#b${node.parent}`)) {
+                    let d = document.createElement("div");
+                    d.id = "b" + node.parent;
+                    d.classList.add("b");
                     d.innerHTML = `
                     <div>&lt;</div>
                     <div class="frames">
@@ -62,23 +92,26 @@
                     </div>
                     <div>&gt;</div>
                     `;
-                    document.appendChild(d);
+                    document.body.appendChild(d);
                 }
-                let frm = document.querySelector(`div#${node.frame} div.frames`);
-                let d = document.createElement(div);
-                d.id = node.id;
+                let frm = document.querySelector(`div#b${node.parent} div.frames`);
+                let d = document.createElement("div");
+                d.id = "s"+node.id;
+                d.classList.add("s");
+                d.innerText = node.data;
                 frm.appendChild(d);
             }
             //hide other alternatives in frame
-            let others = document.querySelector(`div#${node.frame} div.frames`).children;
+            let others = document.querySelector(`div#b${node.frame} div.frames`).children;
             for (let i = 0; i < others.length; i++) {
-                others.style.display = "none";
+                others[i].style.display = "none";
             }
             //make me visible
-            document.querySelector(`div#${node.frame}`).style.display = "block";
-            document.querySelector(`div#${node.frame}`).scrollIntoViewIfNeeded();
+            document.querySelector(`div#s${node.frame}`).style.display = "block";
+            document.querySelector(`div#s${node.frame}`).scrollIntoViewIfNeeded();
             //render a frame for a child of my choice
-            render(nodes[findFirstChild(node.id)]);
+            render(nodes[findFirstChild(node.id)], true);
         }
+        render(nodes[nnames[0]]);
     </script>
 </body>

@@ -1,6 +1,6 @@
 <head>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/108/three.min.js"></script>
-    <script src="OrbitControls.js"></script>
+    <script src="three.js"></script>
+   <!--<script src="OrbitControls.js"></script>-->
     <style>
         body {
             margin: 0;
@@ -20,11 +20,10 @@
         var screensize = 1000;
         var scene = new THREE.Scene();
         var camera = new THREE.PerspectiveCamera(750, window.innerWidth / window.innerHeight, 0.1, screensize * 3);
-
         var renderer = new THREE.WebGLRenderer();
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
-        var controls = new THREE.OrbitControls(camera, renderer.domElement);
+        //var controls = new THREE.OrbitControls(camera, renderer.domElement);
         camera.position.x = screensize / 2;
         camera.position.y = screensize / 2;
         camera.position.z = screensize;
