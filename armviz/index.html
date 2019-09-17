@@ -1,12 +1,13 @@
 <html>
 
 <head>
-<title>Arm-VIZ</title>
+    <title>Arm-VIZ</title>
 </head>
 
 <body>
     <h2><a href="instructions.html" target="_blank">Instructions and disclaimer</a></h2>
-    <textarea style="width:100%;height:50%" placeholder="Put the OUTPUT ONLY of your program here... &#10;Don't worry, it ignores non-numerical debugging information."></textarea>
+    <textarea style="width:100%;height:50%"
+        placeholder="Put the OUTPUT ONLY of your program here... &#10;Don't worry, it ignores non-numerical debugging information."></textarea>
     <input id="runcommand" style="width:500px"
         placeholder="Put your run command here (e.g. ./boxsize 1 2 3 4) "></input><span> or use the settings
         below:</span> <br>
@@ -19,18 +20,18 @@
     </canvas>
     <script>
         function mkopt(n, t, dv = 0, bk = "", typ = "number") {
-            if (!t){
+            if (!t) {
                 //is a p
                 let p = document.createElement("br");
                 document.querySelector("div").appendChild(p);
                 p = document.createElement("p");
-                p.innerHTML=n;
+                p.innerHTML = n;
                 document.querySelector("div").appendChild(p);
+            } else {
+                let l = document.createElement("label");
+                l.innerHTML = `${t}: <input id="${n}" type=${typ} value="${dv}" ${dv ? "checked" : ""}></input>${bk}    `;
+                document.querySelector("div").appendChild(l);
             }
-            let l = document.createElement("label");
-            l.innerHTML = `${t}: <input id="${n}" type=${typ} value="${dv}" ${dv?"checked":""}></input>${bk}    `;
-
-            document.querySelector("div").appendChild(l);
         }
         mkopt("boxsize", "Box size", 50);
         mkopt("speed", "Speed", 10, " lines/sec");
@@ -128,10 +129,10 @@
                         allOK = false;
                     }
                 }
-                if (allOK) { 
-                    lokl=ln;
-                }else{
-                    if (lokl==-1)return;
+                if (allOK) {
+                    lokl = ln;
+                } else {
+                    if (lokl == -1) return;
                     cline = lines[lokl].split(/\s+/);
                     cline = cline.map(Number);
                 }
