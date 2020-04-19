@@ -15,43 +15,64 @@ function _graphics() {
     // Fill with gradient
     this.ctx.fillStyle = grd;
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-
-
-    this.drawMountain = (x, y, h, angle = 0.5) => {//base of the mountain
-        this.ctx.beginPath();
-        this.ctx.fillStyle = "purple";
-        this.ctx.strokeStyle = "lavender";
-        this.ctx.moveTo(x - angle * h / 2, y);
-        this.ctx.lineTo(x + angle * h / 2, y);
-        this.ctx.lineTo(x, y - h);
-        this.ctx.lineTo(x - angle * h / 2, y);
-        this.ctx.closePath();
-        this.ctx.fill();
-        this.ctx.stroke();
+    this.mountains=[];
+    this.trees={};
+    this.drawEverything=()=>{
+        this.ctx.fillStyle = grd;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        for (let m of this.mountains){
+            this.ctx.beginPath();
+            this.ctx.fillStyle = "purple";
+            this.ctx.strokeStyle = "lavender";
+            this.ctx.moveTo(m.x - m.angle * m.h / 2, m.y);
+            this.ctx.lineTo(m.x + m.angle * m.h / 2, m.y);
+            this.ctx.lineTo(m.x, m.y - m.h);
+            this.ctx.lineTo(m.x - m.angle * m.h / 2, m.y);
+            this.ctx.closePath();
+            this.ctx.fill();
+            this.ctx.stroke();
+        }
+        for (let tt in this.trees){
+            t=this.trees[tt];
+            this.ctx.fillStyle = t.color;
+            this.ctx.beginPath();
+            switch (t.shape) {
+                case 'triangle':
+                    this.ctx.moveTo(t.x - t.radius, t.y);
+                    this.ctx.lineTo(t.x + t.radius, t.y);
+                    this.ctx.lineTo(t.x, t.y - t.radius * 2);
+                    this.ctx.lineTo(t.x - t.radius, t.y);
+                    break;
+                case 'circle':
+                    this.ctx.arc(t.x, t.y - t.radius, t.radius, 0, Math.PI * 2);
+                    break;
+                case 'hexagon':
+                    this.ctx.moveTo(t.x, t.y);
+                    this.ctx.lineTo(t.x + Math.sqrt(3) * t.radius/2, t.y - t.radius / 2);
+                    this.ctx.lineTo(t.x + Math.sqrt(3) * t.radius/2, t.y - t.radius * 3 / 2);
+                    this.ctx.lineTo(t.x, t.y - 2 * t.radius);
+                    this.ctx.lineTo(t.x - Math.sqrt(3) * t.radius/2, t.y - 3 * t.radius / 2);
+                    this.ctx.lineTo(t.x - Math.sqrt(3) * t.radius/2, t.y - t.radius / 2);
+                    this.ctx.lineTo(t.x, t.y);
+                    break;
+            }
+            this.ctx.closePath();
+            this.ctx.fill();
+            if (t.glow) this.ctx.stroke();
+            //draw the stalk
+            this.ctx.fillStyle = "black";
+            this.ctx.fillRect(t.x - 1, t.y, 2, t.radius);
+        }
     }
 
-    this.drawTree = (x, y,color, shape,radius,glow) => {
-        this.ctx.fillStyle = color;
-        this.ctx.beginPath();
-        if (glow)radius-=1;
-        switch (shape){
-            case 'triangle':
-                this.ctx.moveTo(x - radius, y);
-                this.ctx.lineTo(x + radius, y);
-                this.ctx.lineTo(x, y - radius*2);
-                this.ctx.lineTo(x - radius, y);
-            break;
-            case 'circle':
-                this.ctx.arc(x,y-radius,radius,0,Math.PI*2);
-            break;
-        }
-        this.ctx.closePath();
-        this.ctx.fill();
-        if (glow)this.ctx.stroke();
-        //draw the stalk
-        this.ctx.fillStyle="black";
-        this.ctx.fillRect(x-1,y,2,radius);
+    this.drawMountain = (x, y, h, angle = 0.5) => {//base of the mountain
+        this.mountains.push({x:x,y:y,h:h,angle:angle});
+        this.drawEverything();
+    }
+
+    this.drawTree = (id,x, y, color, shape, radius, glow) => {
+        this.trees[id]={x,y,color,shape,radius,glow};
+        this.drawEverything();
     }
 
 }

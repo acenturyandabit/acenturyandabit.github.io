@@ -45,6 +45,7 @@ function startMatrixText() {
         });
     }
     setInterval(() => {
+        let changeCount = 0;
         matrixText.forEach((v, i) => {
             //generate new line
             if (Math.random() < matrixTextSettings.frequency) {
@@ -67,9 +68,18 @@ function startMatrixText() {
                 undraw = true;
                 if (e.genstep >= 0) {
                     for (let j = 0; j < e.genstep; j++) {
-                        v.ctx.fillStyle = "rgb(0," + Math.floor(j / (e.genstep + 1) * 255) + ",0)"
-                        v.ctx.fillStyle = "green";
-                        if (j == e.genstep - 1) v.ctx.fillStyle = "white";
+                        //v.ctx.fillStyle = "rgb(0," + Math.floor(j / (e.genstep + 1) * 255) + ",0)"
+                        //v.ctx.fillStyle = "green";
+                        let greenAmt = Math.max(Math.floor((j) / e.genstep * 255), 1).toString(16);
+                        if (greenAmt.length < 2) greenAmt = "0" + greenAmt;
+                        let descol = "#00" + greenAmt + "00"
+                        v.ctx.fillStyle = descol;
+
+                        changeCount++;
+                        if (j == e.genstep - 1) {
+                            v.ctx.fillStyle = "white";
+                            changeCount++;
+                        }
                         v.ctx.font = e.size + "px monospace";
                         //if (v.ctx.fillStyle!="#008000")console.log(v.ctx.fillStyle);
                         v.ctx.fillText(e.str[j], e.rootx, e.rooty + j * e.size);
@@ -84,7 +94,15 @@ function startMatrixText() {
                         undraw = false;
                     } else {
                         for (let j = 0; j < e.finalLen; j++) {
-                            v.ctx.fillStyle = "rgb(0," + Math.floor((j + e.genstep) / e.finalLen * 255) + ",0)";
+                            let greenAmt = Math.max(Math.floor((j + e.genstep) / e.finalLen * 255), 1).toString(16);
+                            if (greenAmt.length < 2) greenAmt = "0" + greenAmt;
+                            let descol = "#00" + greenAmt + "00"
+                            v.ctx.fillStyle = descol;
+                            changeCount++;
+                            if (v.ctx.fillStyle != descol) {
+                                console.log("oh no:" + descol + "vs" + v.ctx.fillStyle + "@" + changeCount);
+                                v.ctx.fillStyle = descol;
+                            }
                             if (j == e.finalLen - 1) {
                                 //ghosty=Math.floor((1+(e.genstep/e.finalLen))*255);
                                 //v.ctx.fillStyle = "rgb("+ghosty+","+ghosty+","+ghosty+")";

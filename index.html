@@ -100,6 +100,9 @@
             border-right: 15px solid transparent;
             border-top: 7.5px solid grey;
         }
+        *{
+            user-select:none;
+        }
     </style>
 </head>
 
@@ -148,10 +151,12 @@
         </div>
         <div>
             <div class='hexagon'></div>
-            <p>offline</p>
+            <p>other</p>
         </div>
+        <button style="display:none" onclick="editing=true">Editor mode</button>
     </div>
     <script>
+        let editing=false;
         let g = new _graphics();
         let mountains = [];
         for (let i = 0; i < 300; i++) {
@@ -165,6 +170,20 @@
             document.querySelector("#legend").style.left = anchor.offsetLeft;
             document.querySelector("#legend").style.top = anchor.offsetTop;
         }
+        document.addEventListener('keydown',(e)=>{
+            if (e.key=="e"){
+                document.querySelector("button").style.display="block";
+            }
+        })
+        document.addEventListener('keyup',(e)=>{
+            if (e.key=="e"){
+                document.querySelector("button").style.display="none";
+            }
+        })
+        window.addEventListener("resize",()=>{
+            cleanup();
+            g.drawEverything();
+        })
         cleanup();
         let mapping = {
             'unmaintained': 'red',
@@ -172,7 +191,8 @@
             'usable': 'yellowgreen',
             'interactive': 'triangle',
             'productivity': 'circle',
-            'offline': 'hexagon'
+            'other': 'hexagon',
+            "workInProgress":"grey"
         }
         let radius = 20;
         let notprop=['x','y','htmlContent','dirs','link'];
@@ -182,9 +202,11 @@
         for (pp in projects) {
             let p = projects[pp];
             //calculate true x and true y
+            if (!p.x)p.x=Math.random();
+            if (!p.y)p.y=Math.random();
             p.y = 200 + (g.canvas.height - 200) * p.y;
             p.x = g.canvas.width * p.x;
-            g.drawTree(p.x, p.y, mapping[p.status], mapping[p.category], radius);
+            g.drawTree(pp,p.x, p.y, mapping[p.status], mapping[p.category], radius);
             p.htmlContent="";
             for (let pr in p){
                 if (notprop.indexOf(pr)==-1)p.htmlContent+=`<p>${pr}:${p[pr]}</p>`
@@ -214,15 +236,42 @@
             `;
             cleanup();
         })
-        let lastTree;
+        let _lastTree;
+        let _selTree;
+        document.body.addEventListener("mousedown", (e) => {
+            if (editing){
+                for (pp in projects) {
+                    let p = projects[pp];
+                    if (Math.abs(e.clientX - p.x) < radius * 2 && Math.abs(e.clientY - p.y) < radius * 2) {
+                        g.drawTree(pp,p.x, p.y, mapping[p.status], mapping[p.category], radius, true);//glow it
+                        _selTree = pp;
+                        break;
+                    }
+                }
+            }
+        })
+        document.body.addEventListener("mouseup", (e) => {
+            _selTree=undefined;
+        })
         document.body.addEventListener("mousemove", (e) => {
-            if (lastTree) g.drawTree(lastTree.x, lastTree.y, mapping[lastTree.status], mapping[lastTree.category], radius, false);//glow it
-            for (pp in projects) {
-                let p = projects[pp];
-                if (Math.abs(e.clientX - p.x) < radius * 2 && Math.abs(e.clientY - p.y) < radius * 2) {
-                    g.drawTree(p.x, p.y, mapping[p.status], mapping[p.category], radius, true);//glow it
-                    lastTree = p;
-                    break;
+            if (_selTree){
+                selTree=projects[_selTree],
+                selTree.x=e.clientX;
+                selTree.y=e.clientY;
+                g.drawTree(_selTree, selTree.x, selTree.y, mapping[selTree.status], mapping[selTree.category], radius, false);//glow it
+            }
+            else {
+                if (_lastTree){
+                    lastTree=projects[_lastTree];
+                    g.drawTree(_lastTree,lastTree.x, lastTree.y, mapping[lastTree.status], mapping[lastTree.category], radius, false);//glow it
+                }
+                for (pp in projects) {
+                    let p = projects[pp];
+                    if (Math.abs(e.clientX - p.x) < radius * 2 && Math.abs(e.clientY - p.y) < radius * 2) {
+                        g.drawTree(pp,p.x, p.y, mapping[p.status], mapping[p.category], radius, true);//glow it
+                        lastTree = p;
+                        break;
+                    }
                 }
             }
         })

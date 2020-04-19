@@ -1,6 +1,6 @@
 function randomRuiEl(element){
     let baseurl="ruigen/";
-    let ruiList=['annipairs','hackertext','kaleidocore','lockcore','matrixtext','orbit3d','radar','starscape'];
+    let ruiList=['hackertext','kaleidocore','lockcore','matrixtext','radar','starscape'];
     
     let toLoadList=[];
     let toRandomElements=document.getElementsByClassName("selectRandom");
@@ -8,6 +8,7 @@ function randomRuiEl(element){
         r=toRandomElements[i];
         r.classList.remove("selectRandom");
         let chosen=ruiList[Math.floor(Math.random()*ruiList.length)];
+        console.log(chosen);
         if (!toLoadList.includes(chosen))toLoadList.push(chosen);
         r.classList.add(chosen);
     }
