@@ -1,0 +1,135 @@
+<html>
+	<head>
+		<!--<script>
+		$(document).ready(checkphone);
+		function checkphone(){
+			if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
+				if (window.location.href.indexOf("phone")==-1)window.location="/phono/index.html"
+			}
+		}
+		</script>-->
+		<script src="https://www.gstatic.com/firebasejs/5.3.0/firebase-app.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/5.3.0/firebase-firestore.js"></script>
+		<script src="../jquery.min.js"></script>
+		<script src="discman.js"></script>
+		<script src="sidebtns.js"></script>
+		<script src="bodyUI.js"></script>
+		<script src="phonly.js"></script>
+		<link rel="stylesheet" media="screen and (orientation:portrait)" type="text/css" href="phone.css">
+		<link rel="stylesheet" media="screen and (orientation:landscape)" type="text/css" href="desktop.css">
+		<link rel="stylesheet" type="text/css" href="index.css"><!--common-->
+		<link rel="stylesheet" type="text/css" href="color.css">
+		<link rel="icon" href="favicon.png?v=2">
+		<title>PEPPER: Problem Solver.</title> 
+		<script>
+			var config = {
+				apiKey: "AIzaSyA-sH4oDS4FNyaKX48PSpb1kboGxZsw9BQ",
+				authDomain: "backbits-567dd.firebaseapp.com",
+				databaseURL: "https://backbits-567dd.firebaseio.com",
+				projectId: "backbits-567dd",
+				storageBucket: "backbits-567dd.appspot.com",
+				messagingSenderId: "894862693076"
+			};
+			firebase.initializeApp(config);
+			// Initialize Cloud Firestore through Firebase
+			const settings={
+				timestampsInSnapshots: true
+			};
+			var db = firebase.firestore();
+			db.settings(settings);
+			db.enablePersistence().catch(function(err) {
+				if (err.code == 'failed-precondition') {
+					// Multiple tabs open, persistence can only be enabled
+					// in one tab at a a time.
+					// ...
+					} else if (err.code == 'unimplemented') {
+					// The current browser does not support all of the
+					// features required to enable persistence
+					// ...
+				}
+			});
+		</script>
+		<style>
+			
+			
+		</style>
+	</head>
+	<body>
+		<div id="header">
+			<span>PEPPER  </span><span>goes well with salt</span>
+			<a href="http://quotum.herokuapp.com/pepper/?discussion=4HeqLyAGnrUiIVSTyhYJb62OG">Report a bug...</a>
+			<hr>
+		</div>
+		<div id="body">
+			<div id="problem_box">
+				<h1>Issues</h1>
+				<div class="status">
+					<span>Filter:</span>
+					<input class="filter"></input>
+					<!--<span>Sort:</span>-->
+					<button>Reset</button>
+				</div>
+				<div class="listbox">
+				</div>
+				<div class="addbutton" onclick="showNewIssue()">+: Enter a new issue</div>
+			</div>
+			<div id="divider">
+				<div>
+				</div>
+				<div>
+					<p>View solutions >>></p>
+				</div>
+				<div>
+				</div>
+			</div>
+			<div id="solution_box">
+				<h1>Recommendations</h1>
+				<div class="status">
+					<span>Filter:</span>
+					<input class="filter"></input>
+					<!--<span>Sort:</span>-->
+					<button>Reset</button>
+				</div>
+				<div class="listbox"></div>
+				<div class="addbutton" onclick="showNewRecommend()">+: Enter a new recommendation</div>
+			</div>
+		</div>
+		<div id="linkShadow">
+			<p>Click the link icon on darkened items to link problems and solutions. Press Escape or click a reset button when you're done!</p>
+		</div>
+		<div id="splash" class="splash" style="display:none">
+			<div style="height:20%; width:100%;"></div>
+			<h1 style="width:30%; display:inline-block;">Welcome to PEPPER!</h1>
+			<h2>A platform for constructive problem solving</h2>
+			<p>To get started, enter a discussion code below; or start a new discussion...</p>
+			<p id="spellcheck" style="display: none">Hmm... we couldn't find that one. Check your spelling, maybe?</p>
+			<p id="sorrytaken" style="display: none">Sorry, that discussion name has been taken! Please try again :3</p>
+			<input id="discussionID" placeholder="Discussion ID"></input>
+			<br>
+			<input id="password" type="password" placeholder="Password"></input>
+			<br>
+			<button id="joinbtn" onclick="joindiscussion(false)">Join</button>
+			<button id="createbtn" onclick="joindiscussion(true)">Create</button>
+		</div>
+		<div id="dialog" class="splash" style="display:none">
+			<h2></h2>
+			<p></p>
+			<p></p>
+			<textarea id="dialogTA"></textarea>
+			<br>
+			<p></p>
+			<div>
+			</div>
+			<br>
+			<button onclick="dialogSubmit()">Submit</button>
+			<button onclick="$('#dialog').hide();">Cancel</button> <!-- add if text in bracket then hide -->
+		</div>
+		<div id="template" style="display:none" class="discussionItem">
+			<p>I cannot logon!</p>
+			<img src="link.png" class="linkIco ico"></img>
+			<img src="edit.png" class="editIco ico"></img>
+			<img src="delete.png" class="deleteIco ico"></img>
+			<span>Links:<span class="linkCount">0</span></span>
+		</div>
+	</body>
+</html>

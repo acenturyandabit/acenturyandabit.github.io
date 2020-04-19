@@ -1,0 +1,36 @@
+<body onload="myNewSrc()">
+    <div id="section-title">
+        <video onended="myAddListener()" autoplay controls width="100%" height="auto">
+            <source src="" type="video/mp4">
+        </video>
+    </div>
+    <script>
+        var startTime;
+        var videoSources = ["http://www.quirksmode.org/html5/videos/big_buck_bunny.mp4",
+            "http://www.html5videoplayer.net/videos/toystory.mp4",
+            "http://www.quirksmode.org/html5/videos/big_buck_bunny.mp4",
+            "http://www.quirksmode.org/html5/videos/big_buck_bunny.mp4",
+            "http://www.quirksmode.org/html5/videos/big_buck_bunny.mp4"
+        ];
+        var currentIndex = 0;
+        //listener function changes src
+        function myNewSrc() {
+            startTime = new Date;
+            console.log("potato");
+            var myVideo = document.getElementsByTagName('video')[0];
+            myVideo.src = videoSources[currentIndex];
+            myVideo.load();
+        }
+
+        function myAddListener() {
+            console.log((new Date) - startTime);
+            if ((new Date) - startTime > (60 * 60 * 1000)) {
+                return;
+            }
+            var myVideo = document.getElementsByTagName('video')[0];
+            currentIndex = (currentIndex + 1) % videoSources.length;
+            myVideo.src = videoSources[currentIndex];
+            myVideo.addEventListener('ended', myNewSrc, false);
+        }
+    </script>
+</body>

@@ -1,0 +1,20 @@
+<html>
+  <head>
+    <script src="svg.min.js"></script>
+    <script>
+      var p = document.createElement("div");
+      document.addEventListener("DOMContentLoaded", function() {
+        let h = document.body.querySelector(".henlo");
+        let mid = h.attachShadow({
+          mode: "open"
+        });
+        mid.appendChild(p);
+        var draw = SVG(p);
+        var rect = draw.rect(100, 100);
+      });
+    </script>
+  </head>
+  <body>
+    <div class="henlo"></div>
+  </body>
+</html>

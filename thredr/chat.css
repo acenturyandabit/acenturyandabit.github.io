@@ -1,0 +1,141 @@
+body {
+    font-size: 2em;
+    /* 2x body copy size = 32px */
+    line-height: 1.25;
+    /* 45px / 36px */
+    display: flex;
+    margin: 0;
+    flex-direction: column;
+    font-family: sans-serif;
+}
+
+@media (min-width: 43.75em) {
+    body {
+        font-size: 2.5em;
+        /* 2.5x body copy size = 40px */
+        line-height: 1.125;
+    }
+}
+
+@media (min-width: 56.25em) {
+    body {
+        font-size: 3em;
+        /* 3x body copy size = 48px */
+        line-height: 1.05;
+        /* keep to a multiple of the 20px line height 
+      and something more appropriate for display headings */
+    }
+}
+
+h3{text-align: center;}
+.threadblocks{
+    display: flex;
+    flex-direction: row-reverse;
+    flex: 0 0 120px;
+    overflow-x: auto;
+}
+.threadblocks>div{
+    flex: 0 0 100px;
+    height: 100px;
+    width:100px;
+    overflow:hidden;
+    padding: 10px;
+    margin: 10px;
+    background-color:lightblue;
+}
+.chatscreen{
+    flex: 0 1 100%;
+    display: flex;
+    flex-direction: column;
+}
+.chatbox{
+    flex: 1 1 100%;
+    display: flex;
+    flex-direction: column-reverse;
+    overflow-y:auto;
+}
+
+.thread.highlighted{
+    background-color:blue;
+}
+.msg {
+    background-color: lightcyan;
+    display: block;
+    padding: 0.5em 0.3em;
+    margin: 0.5em 0.3em;
+    border-radius: 0.7em;
+}
+
+#throwbox input {
+    width: 70vw;
+    font-size: 1.3em;
+    position: relative;
+}
+
+#hoverbox {
+    width: 70vw;
+    position: absolute;
+    bottom: 6em;
+    background-color: whitesmoke;
+}
+
+#ehere {
+    background: lavender;
+    margin-left: 10px;
+}
+
+.thread>.thread {
+    display: none;
+}
+
+.thread.subVisible {
+    display: block;
+}
+
+.thread.subVisible>.thread:nth-last-child(-n+5) {
+    display: block;
+}
+
+#throwbox img {
+    height: 2em;
+    width: 2em;
+    float: right;
+}
+
+.msg.selected.selected {
+    background-color: greenyellow;
+}
+
+.floatybuttons {
+    display: none;
+    position: absolute;
+}
+
+.floatybuttons>img {
+    width: 100px;
+    height: 100px;
+}
+
+.dialog {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(10, 10, 10, 0.8);
+}
+
+.msg img {
+    max-width: 100%;
+}
+
+
+video{
+    min-width: 100%;
+    min-height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: translateX(-50%);
+}
