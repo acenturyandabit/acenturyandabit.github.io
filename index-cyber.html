@@ -14,14 +14,15 @@
         }
     </style>
     <div>
-        <h1>Quotum</h1>
-        <p>quotum /kwō"tŭm:/, n. Part or proportion; of a greater whole.</p>
+        <h1>steven liu's website</h1>
+        <p>a.k.a. acenturyandabit</p>
         <div id="center-threebox">
             <div>
 
             </div>
             <div class="special" style="text-align: right;
             flex: 1 1 33%;
+            overflow-x: hidden;
             overflow-y: scroll;">
                 <h2>Work so far:</h2>
                 <div id="wsfdiv">
@@ -75,8 +76,7 @@
                     <h3>Externally driven:</h3>
                     <p><a href="archives/usydfoodie">USYD Foodie: A food event client for the USYD USU</a><br>[Last
                         updated: early-2019; status: deprecated]</p>
-                    <p><a
-                            href=>PEP
+                    <p><a href=>PEP
                             ++: Improved UX for the USYD FEIT Professional Engagement Program Log</a><br>[Last updated:
                         early-2019; status: passively maintained]</p>
                     <p><a href="usydinitiative">USYD Initiative: extracurricular list for USYD Engineering
@@ -125,8 +125,8 @@
             'link': (l) => `<a href='${l}'>${l}</a>`
         }
         for (let pp in projects) {
-            let p=projects[pp];
-            ihtml+=`<h3>${pp}</h3>`;
+            let p = projects[pp];
+            ihtml += `<h3>${pp}</h3>`;
             for (let pr in p) {
                 if (notprop.indexOf(pr) == -1) ihtml += `<p>${pr}:${p[pr]}</p>`
                 else {

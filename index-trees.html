@@ -1,0 +1,281 @@
+<html>
+
+<head>
+    <script src="graphics.js">
+    </script>
+    <script src="projects.js">
+    </script>
+    <style>
+        body,
+        html {
+            margin: 0;
+        }
+
+        p {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .hcenter {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+        }
+
+        .vcenter {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .vcenter>div,
+        .hcenter>div {
+            flex: 1 1 33%;
+        }
+
+        #legend {
+            position: absolute;
+            transform: translateX(-50%);
+        }
+
+        #legend {
+            display: flex;
+            flex-direction: row;
+        }
+
+        #legend>div {
+            text-align: center;
+            padding: 10px;
+            font-size: 10px;
+        }
+
+        .circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .triangle-up {
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 30px solid grey;
+            display: inline-block;
+        }
+
+        #legend>div>p {
+            margin: 0;
+        }
+
+        .hexagon {
+            width: 30px;
+            height: 15px;
+            background: grey;
+            position: relative;
+            margin-bottom: 7.5px;
+            margin-top: 7.5px;
+        }
+
+        .hexagon:before {
+            content: "";
+            position: absolute;
+            top: -7.5px;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 7.5px solid grey;
+        }
+
+        .hexagon:after {
+            content: "";
+            position: absolute;
+            bottom: -7.5px;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 7.5px solid grey;
+        }
+        *{
+            user-select:none;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas style='width:100%;height:100%;position:absolute;z-index:-1'>
+    </canvas>
+    <div class='vcenter'>
+        <div></div>
+        <div class='hcenter'>
+            <div></div>
+            <div style="text-align: center;">
+                <h2 class='title'>steven liu's website</h2>
+                <div class='content'>
+                    <p>a.k.a. acenturyandabit</p>
+                    <p>Welcome to my site! My name is Steven Liu. I'm a programmer, roboticist, brother, student, and
+                        teacher. My primary hobby is coding. This is a collection of all the projects I've done over the
+                        years.</p>
+                    <p>Click on a tree for more details!</p>
+                </div>
+                <span id="centering-anchor">&nbsp;</span>
+            </div>
+            <div></div>
+        </div>
+        <div></div>
+    </div>
+    <div id="legend">
+        <div>
+            <div class='circle' style="background: red;"></div>
+            <p>unmaintained</p>
+        </div>
+        <div>
+            <div class='circle' style="background: green;"></div>
+            <p>maintained</p>
+        </div>
+        <div>
+            <div class='circle' style="background: yellowgreen;"></div>
+            <p>usable</p>
+        </div>
+        <div>
+            <div class='triangle-up'></div>
+            <p>entertainment</p>
+        </div>
+        <div>
+            <div class='circle' style='background:grey'></div>
+            <p>productivity</p>
+        </div>
+        <div>
+            <div class='hexagon'></div>
+            <p>other</p>
+        </div>
+        <button style="display:none" onclick="editing=true">Editor mode</button>
+    </div>
+    <script>
+        let editing=false;
+        let g = new _graphics();
+        let mountains = [];
+        for (let i = 0; i < 300; i++) {
+            mountains.push([Math.floor(Math.random() * (document.body.offsetWidth + 50) / 10) * 10, 100 + Math.random() * 100, Math.random() * 300 + 200]);
+        }
+        mountains.sort((a, b) => a[1] - b[1]);
+        mountains.forEach(a => g.drawMountain.apply(g, a));
+        //centre the legend
+        function cleanup() {
+            let anchor = document.querySelector("#centering-anchor");
+            document.querySelector("#legend").style.left = anchor.offsetLeft;
+            document.querySelector("#legend").style.top = anchor.offsetTop;
+        }
+        document.addEventListener('keydown',(e)=>{
+            if (e.key=="e"){
+                document.querySelector("button").style.display="block";
+            }
+        })
+        document.addEventListener('keyup',(e)=>{
+            if (e.key=="e"){
+                document.querySelector("button").style.display="none";
+            }
+        })
+        window.addEventListener("resize",()=>{
+            cleanup();
+            g.drawEverything();
+        })
+        cleanup();
+        let mapping = {
+            'unmaintained': 'red',
+            'maintained': 'green',
+            'usable': 'yellowgreen',
+            'interactive': 'triangle',
+            'productivity': 'circle',
+            'other': 'hexagon',
+            "workInProgress":"grey"
+        }
+        let radius = 20;
+        let notprop=['x','y','htmlContent','dirs','link'];
+        let parsers={
+            'link':(l)=>`<a href='${l}'>${l}</a>`
+        }
+        for (pp in projects) {
+            let p = projects[pp];
+            //calculate true x and true y
+            if (!p.x)p.x=Math.random();
+            if (!p.y)p.y=Math.random();
+            p.y = 200 + (g.canvas.height - 200) * p.y;
+            p.x = g.canvas.width * p.x;
+            g.drawTree(pp,p.x, p.y, mapping[p.status], mapping[p.category], radius);
+            p.htmlContent="";
+            for (let pr in p){
+                if (notprop.indexOf(pr)==-1)p.htmlContent+=`<p>${pr}:${p[pr]}</p>`
+                else{
+                    if (parsers[pr])p.htmlContent+=`<p>${pr}:${parsers[pr](p[pr])}</p>`
+                }
+            }
+        }
+        //activate the click area
+        document.body.addEventListener("click", (e) => {
+            for (pp in projects) {
+                let p = projects[pp];
+                if (Math.abs(e.clientX - p.x) < radius * 2 && Math.abs(e.clientY - p.y) < radius * 2) {
+                    document.querySelector(`.title`).innerHTML = pp;
+                    document.querySelector(`.content`).innerHTML = p.htmlContent;
+                    cleanup();
+                    return;
+                }
+            }
+            document.querySelector(`.title`).innerHTML = `steven liu's website`;
+            document.querySelector(`.content`).innerHTML = `
+                    <p>a.k.a. acenturyandabit</p>
+                    <p>Welcome to my site! My name is Steven Liu. I'm a programmer, roboticist, brother, student, and
+                        teacher. My primary hobby is coding. This is a collection of all the projects I've done over the
+                        years.</p>
+                    <p>Click on a tree for more details!</p>
+            `;
+            cleanup();
+        })
+        let _lastTree;
+        let _selTree;
+        document.body.addEventListener("mousedown", (e) => {
+            if (editing){
+                for (pp in projects) {
+                    let p = projects[pp];
+                    if (Math.abs(e.clientX - p.x) < radius * 2 && Math.abs(e.clientY - p.y) < radius * 2) {
+                        g.drawTree(pp,p.x, p.y, mapping[p.status], mapping[p.category], radius, true);//glow it
+                        _selTree = pp;
+                        break;
+                    }
+                }
+            }
+        })
+        document.body.addEventListener("mouseup", (e) => {
+            _selTree=undefined;
+        })
+        document.body.addEventListener("mousemove", (e) => {
+            if (_selTree){
+                selTree=projects[_selTree],
+                selTree.x=e.clientX;
+                selTree.y=e.clientY;
+                g.drawTree(_selTree, selTree.x, selTree.y, mapping[selTree.status], mapping[selTree.category], radius, false);//glow it
+            }
+            else {
+                if (_lastTree){
+                    lastTree=projects[_lastTree];
+                    g.drawTree(_lastTree,lastTree.x, lastTree.y, mapping[lastTree.status], mapping[lastTree.category], radius, false);//glow it
+                }
+                for (pp in projects) {
+                    let p = projects[pp];
+                    if (Math.abs(e.clientX - p.x) < radius * 2 && Math.abs(e.clientY - p.y) < radius * 2) {
+                        g.drawTree(pp,p.x, p.y, mapping[p.status], mapping[p.category], radius, true);//glow it
+                        lastTree = p;
+                        break;
+                    }
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>

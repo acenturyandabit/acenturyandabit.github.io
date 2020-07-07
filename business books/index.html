@@ -1,0 +1,54 @@
+<html>
+
+<head>
+    <script src="../genUI/Javascript/options.js"></script>
+    <script src="../genUI/Components/onePage.js"></script>
+    <style>
+    [data-frame]{
+        display:none;
+    }
+    [data-frame='head']{
+        display:block;
+    }
+    </style>
+</head>
+
+<body>
+    <div data-frame="head">
+        <!-- intro -->
+        <h1>Affirmation jar</h1>
+        <input placeholder="Type a Jar Name...">
+        <button data-rdr="create">Create Jar</button><button data-rdr="edit">Edit Jar</button><button>Open Jar</button>
+    </div>
+    <div data-frame="edit">
+        <p>{jarname}</p>
+        <input placeholder="Type the jar key...">
+        <button data-rdr="create">Proceed</button>
+    </div>
+    <div data-frame="create">
+        <!-- intro -->
+        <h1>Affirmation jar</h1>
+        <p>Link to this jar (for viewing):<a>{jarID}</a></p>
+        <p>Jar settings:</p>
+        <div></div>
+        <!--Jar settings-->
+        <p>Enter jar messages:</p>
+        <div></div>
+        <!--The jar-->
+    </div>
+    <div data-frame="create">
+        <!-- intro -->
+        <h1>Affirmation jar</h1>
+        <p>Link to this jar (for viewing):<a>{jarID}</a></p>
+        <p>Jar settings:</p>
+        <div></div>
+        <!--Jar settings-->
+        <p>Enter jar messages:</p>
+        <div></div>
+        <!--The jar-->
+    </div>
+    <script>
+    </script>
+</body>
+
+</html>
