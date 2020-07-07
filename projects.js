@@ -192,7 +192,7 @@ let projects = {
         "main_challenges": "Selling it.",
         "x": 0.8307911119045256,
         "y": 0.16688918558077442,
-        "thumbnail": "assets/qsheets.PNG"
+        "thumbnail": "assets/qsheets.png"
     },
     "downloadit": {
         "status": "usable",
@@ -202,7 +202,7 @@ let projects = {
         "result": "It works as intended.",
         "x": 0.8527935806844763,
         "y": 0.4334479230999777,
-        "thumbnail": "assets/downloadit.PNG"
+        "thumbnail": "assets/downloadit.png"
     },/*
     "fliprect": {
         "status": "unmaintained",
@@ -256,7 +256,7 @@ let projects = {
         "main_challenges": "Learning to make chrome extensions! And CPU cost management.",
         "x": 0.7639031373997524,
         "y": 0.451268357810414,
-        "thumbnail": "assets/chicksquares.PNG"
+        "thumbnail": "assets/chicksquares.png"
     },
     "PEP plus plus": {
         "status": "usable",
@@ -278,7 +278,7 @@ let projects = {
         "main_challenges": "I still don't like web frameworks (I find them too clunky to deploy on gh pages). But most people insist on web frameworks. *sigh*",
         "x": 0.7893842705444278,
         "y": 0.7863818424566089,
-        "thumbnail": "assets/usrcsite.PNG"
+        "thumbnail": "assets/usrcsite.png"
     },/*
     "node_tcp_bot_controller": {
         "status": "usable",
