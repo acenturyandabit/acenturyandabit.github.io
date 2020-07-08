@@ -39,7 +39,7 @@ let projects = {
             "by_time/2019/01",
             "by_category/programming/management tools"
         ],
-        "link": "http://172.105.176.108:3000/",
+        "link": "http://172.105.176.108:8034/",
         "aim": "To create a system for monitoring stock prices.",
         "result": "I use it regularly! It's pretty good at its job.",
         "main_challenges": "CORS requests between https and http are annoying.",
