@@ -217,7 +217,7 @@
                 position:absolute;
                 top: ${cellh / 2 + borderh / 2}px;
                 padding: 0 ${cellw * 3 / 4 + borderw / 2}px;
-                min-width:calc(80vw - ${cellw * 3 / 2 + borderw}px);
+                min-width:calc(${(window.innerWidth > 1000) ? 80 : 100}vw - ${cellw * 3 / 2 + borderw}px);
             }
             .main{
                 justify-content:center;
