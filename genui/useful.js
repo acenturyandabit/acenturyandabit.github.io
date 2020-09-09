@@ -37,6 +37,8 @@ function randCSSCol() {
     return 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
 }
 
+//'hsl('+ 360*Math.random() +',100%,50%)
+
 // http://www.w3.org/TR/AERT#color-contrast
 function matchContrast(col) {
     var colours = {

@@ -374,6 +374,17 @@ let projects = {
         "x": 0.3328148014824867,
         "y": 0.9408870842555254,
         "thumbnail": "assets/drczoom.png"
+    },
+    "MUN2025": {
+        "status": "usable",
+        "category": "Just for fun",
+        "link": "http://swarmcomp.usydrobotics.club:8031",
+        "aim": "To create a model UN minigame for teaching diplomacy.",
+        "result": "It works, and is suitable for playing in groups of 3-5.",
+        "main_challenges": "Structuring and integrating the processes I know",
+        "x": 0.3328148014824867,
+        "y": 0.9408870842555254,
+        "thumbnail": "assets/mun2025.png"
     }
 }
     /*
