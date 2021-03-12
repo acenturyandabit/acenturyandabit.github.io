@@ -1,0 +1,265 @@
+<html>
+
+<head>
+    <script src="graphics.js">
+    </script>
+
+    <script src="projects.js">
+    </script>
+    <style>
+        html {
+            margin: 0;
+            width: 100%;
+
+        }
+
+        body {
+            width: 100%;
+            margin: 0;
+            text-align: center;
+            color: white;
+        }
+
+
+
+        * {
+            user-select: none;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .main {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+
+        .project-container {
+            margin: auto;
+            position: relative;
+        }
+
+        .centrish-padding {
+            padding: 10vh 30vw;
+        }
+
+        @media screen and (min-width:1000px) {
+            .project-container {
+                width: 80vw;
+            }
+        }
+
+        @media screen and (max-width:1000px) {
+            p {
+                font-size: 2em;
+            }
+
+            .hexagon h1 {
+                font-size: 3em;
+                word-wrap: break-word;
+            }
+
+            .centrish-padding {
+                padding: 10vh 10vw;
+            }
+        }
+
+        .modal>div {
+            padding: 10vw;
+        }
+
+        .fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 100vw;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .fullscreen.hidden {
+            display: none;
+        }
+
+        .modal {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal:before {
+            content: ' ';
+            flex: 0 1 50%;
+        }
+
+        .modal:after {
+            content: ' ';
+            flex: 0 1 50%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="fullscreen starscape" style="z-index:-1">
+    </div>
+    <div class="centrish-padding">
+        <h1>steven liu's website</h1>
+        <div>a.k.a. acenturyandabit</div>
+        <div>
+            Welcome to my site! My name is Steven Liu. I'm a programmer, roboticist, brother, student, and
+            teacher. My primary hobby is coding. This is a collection of all the projects I've done over the
+            years.
+        </div>
+    </div>
+    <div class="fullscreen hidden modal">
+        <div>
+        </div>
+        <h1>x</h1>
+    </div>
+    <script src="ruigen/starscape.js"></script>
+    <script>
+        function showModal(itm) {
+            let modal = document.querySelector(".fullscreen.modal");
+            modal.innerHTML = `
+            <div>
+                <h1>${itm}</h1>
+                <p>Status: ${projects[itm].status}</p>
+                <p>Category: ${projects[itm].category}</p>
+                <p>Aim: ${projects[itm].aim}</p>
+                <p>Result: ${projects[itm].result}</p>
+                ${(projects[itm].main_challenges) ? `<p>Main challenges: ${projects[itm].main_challenges}</p>` : ""}
+                <p>Link: <a style="color:white" href=${projects[itm].link}>${projects[itm].link}</a></p>
+                <h1 onclick="hideModal()">x</h1>
+            </div>
+            `;
+            modal.style.display = "flex";
+        }
+        function hideModal() {
+            let modal = document.querySelector(".fullscreen.modal");
+            modal.style.display = "none";
+        }
+        let styl = document.createElement("style");
+        let all = "";
+        let projArray = Object.entries(projects);
+        //sort projects by category
+        let categories = {};
+        for (let i of projArray) {
+            categories[i[1].category] = categories[i[1].category] || [];
+            categories[i[1].category].push(i);
+        }
+        //for each set of projects, render a chunk
+        for (let i in categories) {
+            renderInto(i, categories[i]);
+        }
+        function renderInto(set, projects) {
+            let hiSet = [];
+            let loSet = [];
+            if (window.outerWidth > 1500) {
+                for (let i = 0; i < projects.length; i++) {
+                    if ((i % 5) % 2) {
+                        loSet.push(projects[i]);
+                    } else {
+                        hiSet.push(projects[i]);
+                    }
+                }
+                while (hiSet.length % 3) hiSet.push(null);
+                while (loSet.length < hiSet.length / 3 * 2) loSet.push(null);
+            } else {
+                for (let i = 0; i < projects.length; i++) {
+                    if ((i % 3) % 2) {
+                        loSet.push(projects[i]);
+                    } else {
+                        hiSet.push(projects[i]);
+                    }
+                }
+                while (hiSet.length % 2) hiSet.push(null);
+                while (loSet.length < hiSet.length / 2) loSet.push(null);
+            }
+
+            function pluralize(word) {
+                if (word[word.length - 1] == 'y') return word.slice(0, word.length - 1) + "ies";
+                else return word + "s";
+            }
+            let baseContainer = document.querySelector(`div[data-set="${set}"]`) || document.createElement("div");
+            baseContainer.dataset.set = set;
+            baseContainer.innerHTML = `<h1>${pluralize(set)}</h1><div class="project-container"></div>`;
+            document.body.appendChild(baseContainer);
+            baseContainer = baseContainer.children[1];
+            function renderItems(itemArr) {
+                return itemArr.map(i => {
+                    if (i) return `<div onclick="showModal('${i[0]}')" class="hexagon" style="cursor: pointer; ${i[1].thumbnail ? `background:url('${i[1].thumbnail}') no-repeat center` : ""}; background-size:cover">
+                    <div>
+                        <h1>${i[0]}</h1>
+                    </div>
+                </div>`;
+                    else return `<div class="hexagon"></div>`;
+                }).join("");
+            }
+            baseContainer.innerHTML = `
+                <div class="main">
+            ${renderItems(hiSet)}
+                </div>
+                <div class="offset main">
+            ${renderItems(loSet)}
+                </div>`
+        }
+
+        function readjust() {
+            let cellw = 250;
+            let cellh = 250;
+            let borderw = 20;
+            let borderh = 20;
+            let colorA = 'linear-gradient(to bottom, #4d004d,black)';
+            let colorB = 'green';
+            let borderCol = '#4d004d';
+            styl.innerHTML = `
+            .hexagon {
+                width: ${cellw}px;
+                height: ${cellh}px;
+                clip-path: polygon(75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%, 25% 0);
+                background: ${colorA};
+                position: relative;
+                margin-left: ${cellw / 4 + borderw / 2}px;
+                margin-right: ${cellw / 4 + borderw / 2}px;
+                margin-top: ${borderh / 2}px;
+                margin-bottom: ${ borderh / 2}px;
+                display:flex;
+                flex-direction:column;
+                font-size:0.5em;
+                z-index:1;
+            }
+            .hexagon>div{
+                padding: 0px ${cellw / 4}px;
+                background: ${borderCol};
+                transition: 0.1s all;
+            }
+            .hexagon:hover>div{
+                padding-bottom: 10px;
+            }
+            .hexagon:before{
+                content:' ';
+                flex: 0 1 100%;
+            }
+            .offset.main{
+                position:absolute;
+                top: ${cellh / 2 + borderh / 2}px;
+                padding: 0 ${cellw * 3 / 4 + borderw / 2}px;
+                min-width:calc(${(window.innerWidth > 1000) ? 80 : 100}vw - ${cellw * 3 / 2 + borderw}px);
+            }
+            .main{
+                justify-content:center;
+            }
+            .project-container{
+                margin-bottom: ${cellh}px;
+            }
+            `;
+            for (let i in categories) {
+                renderInto(i, categories[i]);
+            }
+        }
+        window.addEventListener("resize", readjust);
+        readjust();
+        document.body.appendChild(styl);
+    </script>
+</body>
+
+</html>

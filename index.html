@@ -1,265 +1,99 @@
 <html>
 
 <head>
-    <script src="graphics.js">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+    <script>
+        document.addEventListener("click", (e) => {
+            if (e.target.classList.contains("nav-link")) {
+                e.preventDefault();
+                var o = document.querySelector(".fixedHeader").scrollHeight;
+                var sT = document.querySelector("#" + e.target.dataset.header).offsetTop - o; // get the fixedbar height
+                // compute the correct offset and scroll to it.
+                window.scrollTo(0, sT);
+                Array.from(document.querySelectorAll(".nav-link")).forEach(i => i.classList.remove("active"));
+                e.target.classList.add("active");
+            };
+        })
     </script>
-
-    <script src="projects.js">
-    </script>
-    <style>
-        html {
-            margin: 0;
-            width: 100%;
-
-        }
-
-        body {
-            width: 100%;
-            margin: 0;
-            text-align: center;
-            color: white;
-        }
-
-
-
-        * {
-            user-select: none;
-            font-family: Arial, Helvetica, sans-serif;
-        }
-
-        .main {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: wrap;
-        }
-
-        .project-container {
-            margin: auto;
-            position: relative;
-        }
-
-        .centrish-padding {
-            padding: 10vh 30vw;
-        }
-
-        @media screen and (min-width:1000px) {
-            .project-container {
-                width: 80vw;
-            }
-        }
-
-        @media screen and (max-width:1000px) {
-            p {
-                font-size: 2em;
-            }
-
-            .hexagon h1 {
-                font-size: 3em;
-                word-wrap: break-word;
-            }
-
-            .centrish-padding {
-                padding: 10vh 10vw;
-            }
-        }
-
-        .modal>div {
-            padding: 10vw;
-        }
-
-        .fullscreen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100vh;
-            width: 100vw;
-            z-index: 100;
-            background: rgba(0, 0, 0, 0.5);
-        }
-
-        .fullscreen.hidden {
-            display: none;
-        }
-
-        .modal {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .modal:before {
-            content: ' ';
-            flex: 0 1 50%;
-        }
-
-        .modal:after {
-            content: ' ';
-            flex: 0 1 50%;
-        }
-    </style>
 </head>
 
-<body>
-    <div class="fullscreen starscape" style="z-index:-1">
+<body style="max-width: 600px; margin: auto">
+    <div class="fixedHeader" style="position: sticky; text-align: center; top:0; background:white">
+        <h1>Steven Liu</h1>
+        <h3>Fail fast; learn quickly; embrace complexity</h3>
+        <ul class="nav nav-tabs justify-content-center">
+            <li class="nav-item">
+                <a class="nav-link active" data-header="about_me" href="#about_me">About me</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-header="mun_2025" href="#mun_2025">MUN2025</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-header="polymorph" href="#polymorph">Polymorph</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-header="usrc" href="#usrc">USYD Robotics Club</a>
+            </li>
+        </ul>
     </div>
-    <div class="centrish-padding">
-        <h1>steven liu's website</h1>
-        <div>a.k.a. acenturyandabit</div>
-        <div>
-            Welcome to my site! My name is Steven Liu. I'm a programmer, roboticist, brother, student, and
-            teacher. My primary hobby is coding. This is a collection of all the projects I've done over the
-            years.
+    <div>
+        <div id="about_me">
+            <h2> About me</h2>
+            <img src="assets/me.jpg" style="border-radius: 20%; width: 80%; margin: 10% 10%">
+            <p>Hello! I'm Steven, and I'm currently a student at the <b>University of Sydney</b>, set to graduate in 2023. I study Mechatronics and Project Management, but I learnt to code in 7th grade and haven't stopped since then!</p>
+            <p>I've also been <b>teaching</b> for a long time; starting from teaching physics, to mathematics, to robotics; and I've developed a lot as a teacher and a communicator since my first time teaching. As a teacher I pride myself on not only sharing
+                information but also creating tangible learning assets for future generations. </p>
+            <p>Here are a small sample of my projects from recent years. Check them out!</p>
+            <p>You can reach out to me via email at <a href="mailto:steeven.liu2@gmail.com">steeven.liu2@gmail.com</a>; and if you find an <b>@acenturyandabit</b> somewhere on the internet, it's probably me :)</p>
+        </div>
+        <div id="mun_2025">
+            <h2>MUN 2025</h2>
+            <p>Model UN 2025 came from a brief to create an activity centred around leadership principles. This game pits 3-5 players in negotiations with each other to collectively determine a set of policies that will decide the fate of their nations,
+                under time pressure and with differing motivations.</p>
+            <video muted autoplay src="assets/mun2025slimdemo.mp4" style="width:100%;"></video>
+            <p>For this project, I used Vanilla Javascript and a NodeJS backend, with Websockets for real time communications. Various challenges I overcame in this project include designing the engine to be disconnect- and cheat-proof; designing the game
+                logic itself so that it could be played as a fast-paced 15 minute game; and coming up with all the countries and bill proposals!</p>
+            <p>The game is currently hosted <a href="http://172.105.176.108:8031/">on my linode server</a>.</p>
+        </div>
+        <div id="polymorph">
+            <h2>Polymorph</h2>
+            <p>Since my first days experimenting with Visual Basic, I've always been in awe of software's ability to deliver stunning and practical user experiences. My first foray into this was in a humble Todo list app, which had one column for tasks and
+                one column for descriptions for those tasks.</p>
+            <p>However, this didn't feel good enough. I wanted to be able to rearrange the tasks in any order I wanted. I wanted to use this cross-platform and cross-device, even without a stable internet connection. I wanted to build in a KMS and CMS on
+                the side. And most of all, I wanted to be able to add new features and mix things up on the fly.</p>
+            <p>Thus, from the forges of 5 paradigm shifts over as many years, comes my pièce de résistance, my modular masterpiece, my Windows 10: Polymorph!</p>
+            <img src="assets/polymorph.gif" style="width: 100%; margin: 10% 0">
+            <p>Polymorph integrates a lot of my learnings, including: modularity; event hooks and broadcasts; profiler optimisation and various web technologies. Although Polymorph was built for a very, very specific niche (just me!), I do dream that one
+                day I might bring polymorph's unique abilities of <b>high-latency tolerance</b>, <b>seamless multi-modal representation of a single dataset</b>, and <b>space-efficient and context-switching-friendly tab and panel system</b> to a wider
+                audience. It's also super moddable, since it doesn't require any build tools or libraries aside from a javascript interpreter, which everyone has anyway.</p>
+            <p>You can try out Polymorph
+                <a href="https://acenturyandabit.github.io/polymorph">on github</a>, albeit with localStorage saves only.
+            </p>
+        </div>
+        <div id="usrc">
+            <h2>USYD Robotics Club</h2>
+            <p>The USYD Robotics Club is the University of Sydney's most accessible hands-on engineering club. I've been with the club since the second year of its existence, and have poured in lots of love, ingenuity and dedication into it.</p>
+            <p>The story of the USYD Robotics Club started in 2017, when a group of USYD students decided to enter a number of student-friendly competitions around Australia, including the QUT Drone Racing Competition, the Robot Art competition, the NIARC
+                robotics challenge. Unfortunately, this was not to last, as the sponsors for RobotArt and NIARC pulled out, shutting these competitions down. COVID dealt a final blow to our club by taking away any possiblity of in-person events...</p>
+            <p>... and that's where I came in, as executive-turned-club-president in 2019-21. And boy did I come in swinging:</p>
+            <ul>
+                <li>I steered the club towards running student-facing tutorials rather than focusing on events, to address a fresh and growing pool of first year students as clients.</li>
+                <li>During COVID, I piloted and delivered a number of online coding-based tutorials, and assisted my fellow executives to do the same.</li>
+                <li>I created and refined a collection of hardware kits to replace our older kits which relied heavily on cable ties and disposable batteries, increasing sustainability.</li>
+                <li>I leveraged the power of a fixed time and place akin to some of the more well-resourced groups around uni, opening the door for more dedicated and involved members to increase their commitment.</li>
+            </ul>
+            <img src="assets/usrc.png" style="width: 100%; margin: 5% 0">
+            <p>Overall I'm incredibly glad to have the opportunity to be a custodian of the club, not only because it aligns with my passions, but also because it has given me insight into the amount of work that an an enterprise needs to adapt to circumstance
+                and stay afloat.</p>
+        </div>
+        <div id="usrc">
+            <h2>Where to next?</h2>
+            <p>Although I know that well-paying software careers depend on enterprise software contracts which can be rather dry, I'll definitely still spend time working on my personal projects. I really want to see Polymorph live up to its potential someday;
+                I'd love to play with neural networks more; and I'll also strive to keep robotisc in my hobby diet to ground my work to physical reality.</p>
+            <p>Naturally though staying alive and committing to hobbies like robotics is expensive, so I'm looking to put my software skills to work to create value for the wider community and earn my keep. If you're creating value and need a software developer
+                to help develop new products, keep your ship running, or come up with new ideas, I'd love to join your organisation! Please reach out to me via <a href="mailto:steeven.liu2@gmail.com">email</a>, and I'll hear from you soon!</p>
         </div>
     </div>
-    <div class="fullscreen hidden modal">
-        <div>
-        </div>
-        <h1>x</h1>
-    </div>
-    <script src="ruigen/starscape.js"></script>
-    <script>
-        function showModal(itm) {
-            let modal = document.querySelector(".fullscreen.modal");
-            modal.innerHTML = `
-            <div>
-                <h1>${itm}</h1>
-                <p>Status: ${projects[itm].status}</p>
-                <p>Category: ${projects[itm].category}</p>
-                <p>Aim: ${projects[itm].aim}</p>
-                <p>Result: ${projects[itm].result}</p>
-                ${(projects[itm].main_challenges) ? `<p>Main challenges: ${projects[itm].main_challenges}</p>` : ""}
-                <p>Link: <a style="color:white" href=${projects[itm].link}>${projects[itm].link}</a></p>
-                <h1 onclick="hideModal()">x</h1>
-            </div>
-            `;
-            modal.style.display = "flex";
-        }
-        function hideModal() {
-            let modal = document.querySelector(".fullscreen.modal");
-            modal.style.display = "none";
-        }
-        let styl = document.createElement("style");
-        let all = "";
-        let projArray = Object.entries(projects);
-        //sort projects by category
-        let categories = {};
-        for (let i of projArray) {
-            categories[i[1].category] = categories[i[1].category] || [];
-            categories[i[1].category].push(i);
-        }
-        //for each set of projects, render a chunk
-        for (let i in categories) {
-            renderInto(i, categories[i]);
-        }
-        function renderInto(set, projects) {
-            let hiSet = [];
-            let loSet = [];
-            if (window.outerWidth > 1500) {
-                for (let i = 0; i < projects.length; i++) {
-                    if ((i % 5) % 2) {
-                        loSet.push(projects[i]);
-                    } else {
-                        hiSet.push(projects[i]);
-                    }
-                }
-                while (hiSet.length % 3) hiSet.push(null);
-                while (loSet.length < hiSet.length / 3 * 2) loSet.push(null);
-            } else {
-                for (let i = 0; i < projects.length; i++) {
-                    if ((i % 3) % 2) {
-                        loSet.push(projects[i]);
-                    } else {
-                        hiSet.push(projects[i]);
-                    }
-                }
-                while (hiSet.length % 2) hiSet.push(null);
-                while (loSet.length < hiSet.length / 2) loSet.push(null);
-            }
-
-            function pluralize(word) {
-                if (word[word.length - 1] == 'y') return word.slice(0, word.length - 1) + "ies";
-                else return word + "s";
-            }
-            let baseContainer = document.querySelector(`div[data-set="${set}"]`) || document.createElement("div");
-            baseContainer.dataset.set = set;
-            baseContainer.innerHTML = `<h1>${pluralize(set)}</h1><div class="project-container"></div>`;
-            document.body.appendChild(baseContainer);
-            baseContainer = baseContainer.children[1];
-            function renderItems(itemArr) {
-                return itemArr.map(i => {
-                    if (i) return `<div onclick="showModal('${i[0]}')" class="hexagon" style="cursor: pointer; ${i[1].thumbnail ? `background:url('${i[1].thumbnail}') no-repeat center` : ""}; background-size:cover">
-                    <div>
-                        <h1>${i[0]}</h1>
-                    </div>
-                </div>`;
-                    else return `<div class="hexagon"></div>`;
-                }).join("");
-            }
-            baseContainer.innerHTML = `
-                <div class="main">
-            ${renderItems(hiSet)}
-                </div>
-                <div class="offset main">
-            ${renderItems(loSet)}
-                </div>`
-        }
-
-        function readjust() {
-            let cellw = 250;
-            let cellh = 250;
-            let borderw = 20;
-            let borderh = 20;
-            let colorA = 'linear-gradient(to bottom, #4d004d,black)';
-            let colorB = 'green';
-            let borderCol = '#4d004d';
-            styl.innerHTML = `
-            .hexagon {
-                width: ${cellw}px;
-                height: ${cellh}px;
-                clip-path: polygon(75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%, 25% 0);
-                background: ${colorA};
-                position: relative;
-                margin-left: ${cellw / 4 + borderw / 2}px;
-                margin-right: ${cellw / 4 + borderw / 2}px;
-                margin-top: ${borderh / 2}px;
-                margin-bottom: ${ borderh / 2}px;
-                display:flex;
-                flex-direction:column;
-                font-size:0.5em;
-                z-index:1;
-            }
-            .hexagon>div{
-                padding: 0px ${cellw / 4}px;
-                background: ${borderCol};
-                transition: 0.1s all;
-            }
-            .hexagon:hover>div{
-                padding-bottom: 10px;
-            }
-            .hexagon:before{
-                content:' ';
-                flex: 0 1 100%;
-            }
-            .offset.main{
-                position:absolute;
-                top: ${cellh / 2 + borderh / 2}px;
-                padding: 0 ${cellw * 3 / 4 + borderw / 2}px;
-                min-width:calc(${(window.innerWidth > 1000) ? 80 : 100}vw - ${cellw * 3 / 2 + borderw}px);
-            }
-            .main{
-                justify-content:center;
-            }
-            .project-container{
-                margin-bottom: ${cellh}px;
-            }
-            `;
-            for (let i in categories) {
-                renderInto(i, categories[i]);
-            }
-        }
-        window.addEventListener("resize", readjust);
-        readjust();
-        document.body.appendChild(styl);
-    </script>
 </body>
 
 </html>
