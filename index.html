@@ -1,99 +1,15 @@
 <html>
 
 <head>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
-    <script>
-        document.addEventListener("click", (e) => {
-            if (e.target.classList.contains("nav-link")) {
-                e.preventDefault();
-                var o = document.querySelector(".fixedHeader").scrollHeight;
-                var sT = document.querySelector("#" + e.target.dataset.header).offsetTop - o; // get the fixedbar height
-                // compute the correct offset and scroll to it.
-                window.scrollTo(0, sT);
-                Array.from(document.querySelectorAll(".nav-link")).forEach(i => i.classList.remove("active"));
-                e.target.classList.add("active");
-            };
-        })
-    </script>
 </head>
 
 <body style="max-width: 600px; margin: auto">
-    <div class="fixedHeader" style="position: sticky; text-align: center; top:0; background:white">
-        <h1>Steven Liu</h1>
-        <h3>Fail fast; learn quickly; embrace complexity</h3>
-        <ul class="nav nav-tabs justify-content-center">
-            <li class="nav-item">
-                <a class="nav-link active" data-header="about_me" href="#about_me">About me</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-header="mun_2025" href="#mun_2025">MUN2025</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-header="polymorph" href="#polymorph">Polymorph</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-header="usrc" href="#usrc">USYD Robotics Club</a>
-            </li>
-        </ul>
-    </div>
-    <div>
-        <div id="about_me">
-            <h2> About me</h2>
-            <img src="assets/me.jpg" style="border-radius: 20%; width: 80%; margin: 10% 10%">
-            <p>Hello! I'm Steven, and I'm currently a student at the <b>University of Sydney</b>, set to graduate in 2023. I study Mechatronics and Project Management, but I learnt to code in 7th grade and haven't stopped since then!</p>
-            <p>I've also been <b>teaching</b> for a long time; starting from teaching physics, to mathematics, to robotics; and I've developed a lot as a teacher and a communicator since my first time teaching. As a teacher I pride myself on not only sharing
-                information but also creating tangible learning assets for future generations. </p>
-            <p>Here are a small sample of my projects from recent years. Check them out!</p>
-            <p>You can reach out to me via email at <a href="mailto:steeven.liu2@gmail.com">steeven.liu2@gmail.com</a>; and if you find an <b>@acenturyandabit</b> somewhere on the internet, it's probably me :)</p>
-        </div>
-        <div id="mun_2025">
-            <h2>MUN 2025</h2>
-            <p>Model UN 2025 came from a brief to create an activity centred around leadership principles. This game pits 3-5 players in negotiations with each other to collectively determine a set of policies that will decide the fate of their nations,
-                under time pressure and with differing motivations.</p>
-            <video muted autoplay src="assets/mun2025slimdemo.mp4" style="width:100%;"></video>
-            <p>For this project, I used Vanilla Javascript and a NodeJS backend, with Websockets for real time communications. Various challenges I overcame in this project include designing the engine to be disconnect- and cheat-proof; designing the game
-                logic itself so that it could be played as a fast-paced 15 minute game; and coming up with all the countries and bill proposals!</p>
-            <p>The game is currently hosted <a href="http://172.105.176.108:8031/">on my linode server</a>.</p>
-        </div>
-        <div id="polymorph">
-            <h2>Polymorph</h2>
-            <p>Since my first days experimenting with Visual Basic, I've always been in awe of software's ability to deliver stunning and practical user experiences. My first foray into this was in a humble Todo list app, which had one column for tasks and
-                one column for descriptions for those tasks.</p>
-            <p>However, this didn't feel good enough. I wanted to be able to rearrange the tasks in any order I wanted. I wanted to use this cross-platform and cross-device, even without a stable internet connection. I wanted to build in a KMS and CMS on
-                the side. And most of all, I wanted to be able to add new features and mix things up on the fly.</p>
-            <p>Thus, from the forges of 5 paradigm shifts over as many years, comes my pièce de résistance, my modular masterpiece, my Windows 10: Polymorph!</p>
-            <img src="assets/polymorph.gif" style="width: 100%; margin: 10% 0">
-            <p>Polymorph integrates a lot of my learnings, including: modularity; event hooks and broadcasts; profiler optimisation and various web technologies. Although Polymorph was built for a very, very specific niche (just me!), I do dream that one
-                day I might bring polymorph's unique abilities of <b>high-latency tolerance</b>, <b>seamless multi-modal representation of a single dataset</b>, and <b>space-efficient and context-switching-friendly tab and panel system</b> to a wider
-                audience. It's also super moddable, since it doesn't require any build tools or libraries aside from a javascript interpreter, which everyone has anyway.</p>
-            <p>You can try out Polymorph
-                <a href="https://acenturyandabit.github.io/polymorph">on github</a>, albeit with localStorage saves only.
-            </p>
-        </div>
-        <div id="usrc">
-            <h2>USYD Robotics Club</h2>
-            <p>The USYD Robotics Club is the University of Sydney's most accessible hands-on engineering club. I've been with the club since the second year of its existence, and have poured in lots of love, ingenuity and dedication into it.</p>
-            <p>The story of the USYD Robotics Club started in 2017, when a group of USYD students decided to enter a number of student-friendly competitions around Australia, including the QUT Drone Racing Competition, the Robot Art competition, the NIARC
-                robotics challenge. Unfortunately, this was not to last, as the sponsors for RobotArt and NIARC pulled out, shutting these competitions down. COVID dealt a final blow to our club by taking away any possiblity of in-person events...</p>
-            <p>... and that's where I came in, as executive-turned-club-president in 2019-21. And boy did I come in swinging:</p>
-            <ul>
-                <li>I steered the club towards running student-facing tutorials rather than focusing on events, to address a fresh and growing pool of first year students as clients.</li>
-                <li>During COVID, I piloted and delivered a number of online coding-based tutorials, and assisted my fellow executives to do the same.</li>
-                <li>I created and refined a collection of hardware kits to replace our older kits which relied heavily on cable ties and disposable batteries, increasing sustainability.</li>
-                <li>I leveraged the power of a fixed time and place akin to some of the more well-resourced groups around uni, opening the door for more dedicated and involved members to increase their commitment.</li>
-            </ul>
-            <img src="assets/usrc.png" style="width: 100%; margin: 5% 0">
-            <p>Overall I'm incredibly glad to have the opportunity to be a custodian of the club, not only because it aligns with my passions, but also because it has given me insight into the amount of work that an an enterprise needs to adapt to circumstance
-                and stay afloat.</p>
-        </div>
-        <div id="usrc">
-            <h2>Where to next?</h2>
-            <p>Although I know that well-paying software careers depend on enterprise software contracts which can be rather dry, I'll definitely still spend time working on my personal projects. I really want to see Polymorph live up to its potential someday;
-                I'd love to play with neural networks more; and I'll also strive to keep robotisc in my hobby diet to ground my work to physical reality.</p>
-            <p>Naturally though staying alive and committing to hobbies like robotics is expensive, so I'm looking to put my software skills to work to create value for the wider community and earn my keep. If you're creating value and need a software developer
-                to help develop new products, keep your ship running, or come up with new ideas, I'd love to join your organisation! Please reach out to me via <a href="mailto:steeven.liu2@gmail.com">email</a>, and I'll hear from you soon!</p>
-        </div>
-    </div>
+    <h1>acenturyandabit's space</h1>
+    <p>I'm a software developer, teacher, and mechatronics engineer.</p>
+    <p>You might be looking for one of these things:</p>
+    <ul>
+        <li><a href="rmqg.acenturyandabit.xyz">My math question generator. [Work in progress]</a></li>
+    </ul>
 </body>
 
 </html>
