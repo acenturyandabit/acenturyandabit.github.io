@@ -1,0 +1,215 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Radio+Canada">
+    <style>
+        *:not(textarea) {
+            font-family: 'Radio Canada', serif;
+        }
+
+        body {
+            overflow: hidden;
+        }
+
+        p,
+        h2,
+        br,
+        h3 {
+            margin: 5px 0;
+            user-select: none;
+        }
+    </style>
+    <title>2D Plotter for CSV/JSON</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/3.1.2/svg.min.js"></script>
+</head>
+
+<body style="height: 100%; margin:0; display: flex; flex-direction: column;">
+    <h1 style="padding-left: 20px">2D Plotter for CSV/JSON</h1>
+    <div style="display: flex; flex: 1 1 100%">
+        <div class="svg_bin" style="flex: 1 1 80%">
+        </div>
+        <div style="flex: 1 1 20%; padding-left: 20px; display:flex; flex-direction: column;">
+            <h2>Need a quick way to plot 2D points and have their coordinates in JSON or CSV format?</h2>
+            <p>You've come to the right place!</p>
+            <h2>Instructions</h2>
+            <p>Click and drag to pan around the screen.</p>
+            <p>Scroll to zoom in or out. Press "R" to reset the zoom level.</p>
+            <p>Double-click on the grid on the left hand side to plot a point.</p>
+            <br>
+            <!-- <p>Shift-click a point and drag to make a connection to another existing point.</p> -->
+            <p>The coordinates and edges will appear in the output box below.</p>
+            <p>You can also edit the coordinates in the box and they will be drawn on the screen.</p>
+            <br>
+            <p>Press "G" to toggle grid snapping. Grid snapping is currently <span style="font-weight: bold;"
+                    class="grid_snapping">ON</span>.
+            </p>
+            <h2>Output</h2>
+            <h3>Format</h3>
+            <label><input type="radio" name="outputType" value="csv"> CSV</label>
+            <label><input type="radio" name="outputType" value="json" checked> JSON</label>
+            <!-- <h3>Edge format</h3>
+            <label><input type="radio" name="edgeType" value="adjlist"> Adjacency list</label>
+            <label><input type="radio" name="edgeType" value="edgelist" checked> Edge list</label> -->
+            <br>
+            <textarea style="flex: 1 1 80%; resize: none; margin-bottom: 10px"></textarea>
+        </div>
+        <script>
+            let points = [/*{
+                x: 10, // in output coords
+                y: 10,
+                circle: draw.circle
+            }*/];
+            let svg_bin = document.querySelector(".svg_bin");
+            let draw = SVG().addTo(".svg_bin").size(svg_bin.clientWidth, svg_bin.clientHeight);
+            // Render the grid
+            let zoomFactor = 20; // 10 pixels to one unit
+            let doGridSnap = true;
+            let topLeftOffset = { x: -(draw.width() / 2) / zoomFactor, y: (draw.height() / 2) / zoomFactor }; // the location of the top left screen pixel in output units
+            let coreRect = draw.rect(draw.width(), draw.height());
+            let renderAll = () => {
+                let gridDx = topLeftOffset.x + 0.5;
+                let gridDy = topLeftOffset.y + 0.5;
+                let dx = (1 - (gridDx - Math.floor(gridDx))) * zoomFactor;
+                let dy = (gridDy - Math.floor(gridDy)) * zoomFactor;
+                let pattern = draw.pattern(zoomFactor, zoomFactor, (add) => {
+                    add.line(dx, 0, dx, zoomFactor).stroke({ width: 1, color: "#000" });
+                    add.line(0, dy, zoomFactor, dy).stroke({ width: 1, color: "#000" });
+                });
+                points.forEach(i => {
+                    if (!i.circle) i.circle = draw.circle(zoomFactor / 2);
+                    i.circle.radius(zoomFactor / 2);
+                    i.circle.move((i.x - topLeftOffset.x) * zoomFactor, -(i.y - topLeftOffset.y) * zoomFactor);
+                })
+                coreRect.fill(pattern);
+            }
+
+            renderAll();
+
+            svg_bin.addEventListener("wheel", (e) => {
+                zoomFactorOld = zoomFactor;
+                zoomFactor += e.deltaY;
+                if (zoomFactor < 5) zoomFactor = 5;
+                if (zoomFactor > 100) zoomFactor = 100;
+                // Also adjust to re-center
+                console.log("Old Center:");
+                console.log({
+                    x: topLeftOffset.x + svg_bin.clientWidth / (2 * zoomFactorOld),
+                    y: topLeftOffset.y - svg_bin.clientHeight / (2 * zoomFactorOld),
+                })
+
+                topLeftOffset.x = topLeftOffset.x + svg_bin.clientWidth * (1 / (2 * zoomFactorOld) - 1 / (2 * zoomFactor));
+                topLeftOffset.y = topLeftOffset.y + svg_bin.clientHeight * (1 / (2 * zoomFactor) - 1 / (2 * zoomFactorOld));
+
+                console.log("New Center:");
+                console.log({
+                    x: topLeftOffset.x + svg_bin.clientWidth / (2 * zoomFactor),
+                    y: topLeftOffset.y - svg_bin.clientHeight / (2 * zoomFactor),
+                })
+
+                renderAll();
+            })
+
+            // Click and drag
+            let buttonDown = 0;
+            let start_m = {};
+            svg_bin.addEventListener("mousedown", (e) => {
+                buttonDown = 1;
+                start_m = {
+                    mx: e.clientX,
+                    my: e.clientY,
+                    rx: topLeftOffset.x,
+                    ry: topLeftOffset.y,
+                };
+            })
+
+            svg_bin.addEventListener("mouseup", (e) => {
+                buttonDown = 0;
+            })
+
+            svg_bin.addEventListener("mousemove", (e) => {
+                if (buttonDown) {
+                    topLeftOffset = {
+                        x: (start_m.mx - e.clientX) / zoomFactor + start_m.rx,
+                        y: -(start_m.my - e.clientY) / zoomFactor + start_m.ry
+                    }
+                    renderAll();
+                }
+            })
+
+            // Output and output parsing
+            let outputTextbox = document.querySelector("textarea");
+            let updateTextOutput = () => {
+                if (document.querySelector("[name='outputType']:checked").value == "json") {
+                    outputTextbox.value = JSON.stringify(points.map(i => ({ x: i.x, y: i.y })), undefined, 2);
+                } else {
+                    outputTextbox.value = points.map((i, ii) => `${i.x},${i.y}`).join("\n");
+                }
+                outputTextbox.style.background = "white";
+            }
+            Array.from(document.querySelectorAll("[name='outputType']")).forEach(i => i.addEventListener("input", updateTextOutput))
+
+            outputTextbox.addEventListener("input", () => {
+                // Free old points
+                points.forEach(i => { if (i.circle) i.circle.remove() });
+                if (document.querySelector("[name='outputType']:checked").value == "json") {
+                    outputTextbox.style.background = "white";
+                    try {
+                        points = JSON.parse(outputTextbox.value);
+                        renderAll();
+                    } catch {
+                        outputTextbox.style.background = "yellow";
+                    }
+                } else {
+                    try {
+                        let pairs = outputTextbox.value.split("\n").filter(i => i);
+                        points = pairs.map(i => {
+                            i = i.split(",");
+                            return { x: i[0], y: i[1] };
+                        });
+                        renderAll();
+                    } catch {
+                        outputTextbox.style.background = "yellow";
+                    }
+                }
+            })
+
+            // Adding new points
+            svg_bin.addEventListener("dblclick", (e) => {
+                let xx = (e.pageX - e.currentTarget.offsetLeft - zoomFactor / 2) / zoomFactor + topLeftOffset.x;
+                let yy = -(e.pageY - e.currentTarget.offsetTop - zoomFactor / 2) / zoomFactor + topLeftOffset.y;
+                if (doGridSnap) {
+                    xx = Math.round(xx);
+                    yy = Math.round(yy);
+                } else {
+                    // Truncate to 3dp for readability
+                    xx = Math.round(xx * 1000) / 1000;
+                    yy = Math.round(yy * 1000) / 1000;
+                }
+                points.push({
+                    x: xx,
+                    y: yy
+                });
+                renderAll();
+                updateTextOutput();
+            })
+
+            // Grid snapping toggle
+            let grid_snap_toggle = document.querySelector(".grid_snapping");
+            document.addEventListener("keypress", (e) => {
+                if (e.key == "g") {
+                    doGridSnap = !doGridSnap;
+                    if (doGridSnap) {
+                        grid_snap_toggle.innerText = "ON";
+                    } else {
+                        grid_snap_toggle.innerText = "OFF";
+                    }
+                }
+            })
+
+
+
+        </script>
+    </div>
+</body>
+
+</html>
