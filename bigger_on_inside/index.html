@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="js/face-api.min.js"></script>
+  <script src="js/three.min.js"></script>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <video onloadedmetadata="onPlay(this)" id="inputVideo" autoplay muted playsinline
+    style="z-index: -1; position: absolute"></video>
+</body>
+
+<script>
+  let forwardTimes = []
+  let withBoxes = true
+
+  function onChangeHideBoundingBoxes(e) {
+    withBoxes = !$(e.target).prop('checked')
+  }
+
+  const eyesPosition = {
+    xs: [], ys: [], dsps: [],
+    x: 0, y: 0, dsp: 100,
+    ready: false
+  }
+  let videoStreamSettings = {
+    width: 100,
+    height: 100
+  }; // To be overwritten by actual video
+
+  async function onPlay() {
+    const videoEl = $('#inputVideo').get(0)
+
+    if (videoEl.paused || videoEl.ended || !isFaceDetectionModelLoaded())
+      return setTimeout(() => onPlay())
+
+
+    const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 512, scoreThreshold: 0.5 });
+
+    const result = await faceapi.detectSingleFace(videoEl, options).withFaceLandmarks()
+
+
+    if (result) {
+
+      const landmarkPositions = result.landmarks._positions;
+
+      // Top of eyes are 37, 43
+      // Use a low pass filter
+      eyesPosition.xs.push((landmarkPositions[37]._x + landmarkPositions[43]._x) / 2);
+      eyesPosition.ys.push((landmarkPositions[37]._y + landmarkPositions[43]._y) / 2);
+      eyesPosition.dsps.push(landmarkPositions[43]._x - landmarkPositions[37]._x)
+      if (eyesPosition.xs.length > 3) {
+        eyesPosition.xs.shift();
+        eyesPosition.ys.shift();
+        eyesPosition.dsps.shift();
+      }
+      Object.assign(eyesPosition, {
+        x: eyesPosition.xs.reduce((p, i) => p + i, 0) / eyesPosition.xs.length,
+        y: eyesPosition.ys.reduce((p, i) => p + i, 0) / eyesPosition.ys.length,
+        dsp: eyesPosition.dsps.reduce((p, i) => p + i, 0) / eyesPosition.dsps.length,
+        ready: true
+      });
+
+
+      /*if (withBoxes) {
+        faceapi.draw.drawDetections(canvas, resizedResult)
+      }
+      faceapi.draw.drawFaceLandmarks(canvas, resizedResult)
+      */
+    }
+
+    setTimeout(() => onPlay())
+  }
+  const TINY_FACE_DETECTOR = 'tiny_face_detector'
+
+
+  function isFaceDetectionModelLoaded() {
+    return !!faceapi.nets.tinyFaceDetector.params
+  }
+
+
+  async function changeFaceDetector(detector) {
+    selectedFaceDetector = detector
+    if (!isFaceDetectionModelLoaded()) {
+      await faceapi.nets.tinyFaceDetector.load('js')
+    }
+  }
+
+  async function run() {
+    // load face detection and face landmark models
+    await changeFaceDetector(TINY_FACE_DETECTOR)
+    await faceapi.loadFaceLandmarkModel('js')
+
+    // try to access users webcam and stream the images
+    // to the video element
+    const stream = await navigator.mediaDevices.getUserMedia({ video: {} })
+    const videoEl = $('#inputVideo').get(0)
+    videoStreamSettings = stream.getTracks()[0].getSettings();
+    videoEl.srcObject = stream
+  }
+
+
+  $(document).ready(function () {
+    run()
+  })
+
+
+
+  /* Three JS stuff */
+
+
+  const scene = new THREE.Scene();
+  const fovAngle = 100;
+  const camera = new THREE.PerspectiveCamera(fovAngle, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+  const addBox = (props) => {
+    const geometry = new THREE.BoxGeometry(props.w, props.h, props.d);
+    const material = new THREE.MeshLambertMaterial({ color: props.col });
+    const cube = new THREE.Mesh(geometry, material);
+    cube.position.x = props.x;
+    cube.position.y = props.y;
+    cube.position.z = props.z;
+    scene.add(cube);
+  }
+
+  const renderer = new THREE.WebGLRenderer();
+  renderer.physicallyCorrectLights = true;
+  const ww = window.innerWidth;
+  const hh = window.innerHeight;
+  const dd = -100;
+  renderer.setSize(ww, hh);
+  document.body.appendChild(renderer.domElement);
+  // Back wall
+  addBox({ x: 0, y: 0, z: dd, w: ww, h: hh, d: 1, col: 0xffaaaa });
+  // Side walls
+  addBox({ x: -ww / 2, y: 0, z: dd / 2, w: 1, h: hh, d: -dd, col: 0xaaaaaa });
+  addBox({ x: ww / 2, y: 0, z: dd / 2, w: 1, h: hh, d: -dd, col: 0xaaaaaa });
+  addBox({ x: 0, y: -hh / 2, z: dd / 2, w: ww, h: 1, d: -dd, col: 0xaaaaaa });
+  addBox({ x: 0, y: hh / 2, z: dd / 2, w: ww, h: 1, d: -dd, col: 0xaaaaaa });
+
+  // other stuff
+  // stairs
+  // for (i = 1; i < 20; i++) {
+  //   addBox({ x: 0, y: -hh / 2, z: dd, w: i * 30, h: i * 50, d: (20 - i) * 7, col: 0x0044ff });
+  // }
+
+  // well
+  const nsteps = 10;
+  for (i = 1; i < nsteps; i++) {
+    let rem_w = (nsteps - i) * ww / nsteps;
+    let rem_h = (nsteps - i) * hh / nsteps;
+    addBox({ x: -rem_w / 2, y: 0, z: i * dd / nsteps, w: ww / nsteps, h: hh, d: -dd / nsteps, col: 0xaaaaaa });
+    addBox({ x: rem_w / 2, y: 0, z: i * dd / nsteps, w: ww / nsteps, h: hh, d: -dd / nsteps, col: 0xaaaaaa });
+    addBox({ x: 0, y: -rem_h / 2, z: i * dd / nsteps, w: ww, h: hh / nsteps, d: -dd / nsteps, col: 0xaaaaaa });
+    addBox({ x: 0, y: rem_h / 2, z: i * dd / nsteps, w: ww, h: hh / nsteps, d: -dd / nsteps, col: 0xaaaaaa });
+  }
+
+  // const light = new THREE.PointLight(0xffffff, 0.4, 0);
+  // light.position.set(0, 0, dd);
+  // scene.add(light)
+
+
+  // const light = new THREE.DirectionalLight(0xffffff, 0.2);
+  // light.position.set(0, 0.1, 1);
+  // scene.add(light)
+
+
+
+  const light2 = new THREE.PointLight(0xffffff, 200000, 0, 2);
+  light2.position.set(0, 0, 500);
+  scene.add(light2)
+
+  function animate() {
+
+    requestAnimationFrame(animate);
+    let cc = {
+      xc: (eyesPosition.x / videoStreamSettings.width - 0.5) * ww / 10,
+      yc: (eyesPosition.y / videoStreamSettings.height - 0.5) * hh / 10,
+      zc: eyesPosition.dsp ** 0.2 * 10 // large numbers = less apparent motion
+    }; // To match 'calcs' file
+
+    // set renderer position to user position
+    camera.position.x = cc.xc;
+    camera.position.y = cc.yc;
+    camera.position.z = cc.zc;
+    // No need to change rotation
+
+    // the "portal" is the screen, but our origin is in the real world. 
+    const portalHalfWidth = ww / 2;
+    const portalHalfHeight = hh / 2;
+    const portalPosition = new THREE.Vector3().set(0, 0, -1);
+    camera.updateMatrixWorld();
+    camera.worldToLocal(portalPosition);
+
+    let left = portalPosition.x - portalHalfWidth;
+    let right = portalPosition.x + portalHalfWidth;
+    let top = portalPosition.y + portalHalfHeight;
+    let bottom = portalPosition.y - portalHalfHeight;
+
+    const near = 0.01;
+    const distance = Math.abs(portalPosition.z);
+    const scale = near / distance;
+    left *= scale;
+    right *= scale;
+    top *= scale;
+    bottom *= scale;
+    const far = 10000; // set large for no clipping
+
+    camera.projectionMatrix.makePerspective(left, right, top, bottom, near, far);
+
+    renderer.render(scene, camera);
+  }
+  animate();
+
+
+</script>
+</body>
+
+</html>
