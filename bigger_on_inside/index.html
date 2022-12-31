@@ -173,7 +173,7 @@
 
 
 
-  const light2 = new THREE.PointLight(0xffffff, 200000, 0, 2);
+  const light2 = new THREE.PointLight(0xffffff, 500000, 0, 2);
   light2.position.set(0, 0, 500);
   scene.add(light2)
 
@@ -181,8 +181,8 @@
 
     requestAnimationFrame(animate);
     let cc = {
-      xc: (eyesPosition.x / videoStreamSettings.width - 0.5) * ww / 10,
-      yc: (eyesPosition.y / videoStreamSettings.height - 0.5) * hh / 10,
+      xc: - (eyesPosition.x / videoStreamSettings.width - 0.5) * ww / 10,
+      yc: - (eyesPosition.y / videoStreamSettings.height - 0.5) * hh / 10,
       zc: eyesPosition.dsp ** 0.2 * 10 // large numbers = less apparent motion
     }; // To match 'calcs' file
 
