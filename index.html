@@ -7,6 +7,15 @@
             font-family: 'Radio Canada', serif;
         }
 
+        body {
+            background: #121212;
+            color: white;
+        }
+
+        a {
+            color: lightblue;
+        }
+
         p,
         h2,
         br,
@@ -17,7 +26,8 @@
         h1 {
             margin: 1em 0;
         }
-        .with-title{
+
+        .with-title {
             text-decoration: underline;
             text-decoration-style: dotted;
         }
@@ -26,48 +36,93 @@
 
 <body style="max-width: 600px; margin: auto">
     <h1>acenturyandabit's space</h1>
-    <p>Hi, I'm <span class="with-title" title="a/century/and/a/bit, becuase if I live to 101 then I will have lived through three centuries. Fingers crossed!">acenturyandabit</span>! I'm a software developer, teacher, and <a
-            href="https://blog.acenturyandabit.xyz/">hopeful cynic</a>.</p>
-    <p>Here's a few things I've made or am working on:</p>
+    <p>Hi, I'm <span class="with-title"
+            title="a/century/and/a/bit, becuase if I live to 101 then I will have lived through three centuries. Fingers crossed!">acenturyandabit</span>!
+        I'm a software developer of 10 years, with experience ranging from competitive programming to UI design to
+        robotic control systems. <br> <br> When I'm not working on software or teaching mathematics, I like to go for
+        scenic
+        hikes, visit hidden bars, and watch well-crafted animated shows like Disenchantment, Rick and Morty, and Inside
+        Job.</p>
+    <h2>Magnum Opera</h2>
     <ul>
         <li>
-            <h2>Sydney Quant Trading Mock Trading Engine (<a href="https://quanttraders.club">here</a>)</h2>
+            <h3>Workflowish: Recursive list task/knowledge management software (<a
+                    href="https://acenturyandabit.github.io/workflowish/">here</a>)</h3>
+            <p>The Workflowish UI realises the best that a digital notepad has to offer: a space where you can
+                effortlessly reorganise, summarise and link your notes.</p>
+        </li>
+        <li>
+            <h3>Grimoire [Work in progress]</h3>
+            <!-- <a href="http://stepping-stones.acenturyandabit.xyz">here</a><br> -->
+            <p>A skill tree for all of humanity, and for every human.</p>
+        </li>
+        <li>
+            <h3>SysRep [Pure Vapourware]</h3>
+            <!-- <a href="http://stepping-stones.acenturyandabit.xyz">here</a><br> -->
+            <p>Represent huge systems with many moving parts in graphical form, and synchronise those graphs with actual
+                source code. It's time for the map to close on the territory.</p>
+        </li>
+    </ul>
+    <h2>My tech stack</h2>
+    <div style="display: flex; flex-direction: row;" class="tech-stack">
+        <style>
+            .tech-stack {
+                justify-content: space-around;
+            }
+
+            .tech-stack img {
+                width: 3vw;
+            }
+        </style>
+        <img
+            src="https://raw.githubusercontent.com/gilbarbara/logos/c8749cfc4be0e67a266be0554282d73d967db910/logos/react.svg">
+        <img
+            src="https://raw.githubusercontent.com/gilbarbara/logos/c8749cfc4be0e67a266be0554282d73d967db910/logos/material-ui.svg">
+        <img
+            src="https://raw.githubusercontent.com/gilbarbara/logos/c8749cfc4be0e67a266be0554282d73d967db910/logos/nodejs.svg">
+        <img
+            src="https://raw.githubusercontent.com/gilbarbara/logos/c8749cfc4be0e67a266be0554282d73d967db910/logos/postgresql.svg">
+        <img
+            src="https://raw.githubusercontent.com/gilbarbara/logos/c8749cfc4be0e67a266be0554282d73d967db910/logos/c-plusplus.svg">
+        <img
+            src="https://raw.githubusercontent.com/gilbarbara/logos/c8749cfc4be0e67a266be0554282d73d967db910/logos/python.svg">
+        <img
+            src="https://raw.githubusercontent.com/gilbarbara/logos/c8749cfc4be0e67a266be0554282d73d967db910/logos/docker-icon.svg">
+    </div>
+    <h2>Team projects</h2>
+    <ul>
+        <li>
+            <h3>Sydney Quant Trading Mock Trading Engine (<a href="https://quanttraders.club">here</a>)</h3>
             <p>Sydney Quant Trading is a society of university students who are interested in careers in quantitative
                 trading. I worked with a team of developers to design, develop and deploy a trading engine for their
-                mock trading engine, which handled over 700 requests from 30 players in a fast-paced mock trading game. (I also designed and printed their t-shirts!)
+                mock trading engine, which handled over 700 requests from 30 players in a fast-paced mock trading game.
+                (I
+                also designed and printed their t-shirts!)
             </p>
         </li>
         <li>
-            <h2>Workflowish: Recursive list task/knowledge management software (<a
-                    href="https://acenturyandabit.github.io/workflowish/">here</a>)</h2>
-            <p>My everyday task management / todo app. This is the cumulative sum of 5 years of evolution, distilled (because the codebase got too messy).</p>
-        </li>
-        <li>
-            <h2>Fortknight: Beginner-Friendly Open Source Project (<a
-                    href="http://github.com/acenturyandabit/fortknight">here</a>)</h2>
+            <h3>Fortknight: Beginner-Friendly Open Source Project (<a
+                    href="http://github.com/acenturyandabit/fortknight">here</a>)</h3>
             <p>A coding project that new developers can submit a pull request to, that is much more approachable than
                 other open source efforts but also more technically challenging than existing first-pull-request
                 repositories.</p>
         </li>
+    </ul>
+    <h2>Side Quests</h2>
+    <ul>
         <li>
-            <h2>Jody's Snatch Trainer: Train your anagram skills (<a
-                    href="https://snatch-trainer.acenturyandabit.xyz/">here</a>)</h2>
+            <h3>Jody's Snatch Trainer: Train your anagram skills (<a
+                    href="https://snatch-trainer.acenturyandabit.xyz/">here</a>)</h3>
             <p>A place to train anagram recognition for the multiplayer anagram game Snatch it! Dedicated to lazy
                 Fridays spent playing Snatch with my friend Jody. Written using React and Node.js.</p>
         </li>
         <li>
-            <h2>ShuffleCut: Learn dance faster (<a href="https://shufflecut.acenturyandabit.xyz/">here</a>)</h2>
+            <h3>ShuffleCut: Learn dance faster (<a href="https://shufflecut.acenturyandabit.xyz/">here</a>)</h3>
             <p>A tool for learning dance faster from dance videos. Allows you to segment and loop segments of dance
                 videos, allowing learning and practice of specific sections.</p>
         </li>
         <li>
-            <h2>Text Glob Transformer UI (<a href="http://acenturyandabit.github.io/glob_transformer">here</a>)</h2>
-            <p>Sometimes I'm trying to transform text data with an unknown pattern and I need a quick scratchpad to do
-                it,
-                where I can easily replace the input if something new comes up.</p>
-        </li>
-        <li>
-            <h2>Eye-tracking Parallax Depth Effect (<a href="bigger_on_inside">here</a>)</h2>
+            <h3>Eye-tracking Parallax Depth Effect (<a href="bigger_on_inside">here</a>)</h3>
             <p>An eye-tracking web toy that makes it look like there is a corridor in your screen. Move your head around
                 to see the effect! - Note: The machine learning model takes some time to start up and is quite laggy.
                 Credits to <a href="https://jsantell.com/portals-with-asymmetric-projection">Jordan Santell</a> and <a
@@ -76,19 +131,14 @@
             </p>
         </li>
         <li>
-            <h2>2D Plotter for CSV/JSON (<a href="http://acenturyandabit.github.io/2d_plotter">here</a>)</h2>
+            <h3>2D Plotter for CSV/JSON (<a href="http://acenturyandabit.github.io/2d_plotter">here</a>)</h3>
             <p>A 2D plotter GUI, which generates coordinates in CSV and JSON. Useful sometimes in engineering.</p>
         </li>
         <!-- <li>
             <h2>RMQG [Work in progress]</h2>
             <a href="http://rmqg.acenturyandabit.xyz">here</a><br>
         <p>A math question generator for Australian High School Students to build speed and fundamentals.</p>
-        </li>
-        <li>
-            <h2>Stepping Stones [Work in progress]</h2>
-            <a href="http://stepping-stones.acenturyandabit.xyz">here</a><br>
-            <p>A list of all humanly learnable skills, with prerequisites to age zero.</p>
-        </li> -->
+        </li>-->
     </ul>
 </body>
 
